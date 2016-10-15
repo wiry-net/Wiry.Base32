@@ -11,11 +11,6 @@ namespace Wiry.Base32
         public static Base32Encoding Standard => _standard ?? (_standard = new StandardBase32Encoding());
         public static Base32Encoding ZBase32 => _zBase32 ?? (_zBase32 = new ZBase32Encoding());
 
-        protected abstract string Alphabet { get; }
-
-        private volatile char[] _alphabet;
-        protected char[] AlphabetCharArray => _alphabet ?? (_alphabet = Alphabet.ToCharArray());
-
         public virtual string GetString(byte[] bytes)
         {
             return GetString(bytes, 0, bytes.Length);
@@ -76,11 +71,11 @@ namespace Wiry.Base32
         }
 
         internal static unsafe void ToBase32Unsafe(byte[] input, int inputOffset, char[] output, int outputOffset,
-            int inputGroupsCount, int remainder, char[] alphabet, char? padSymbol)
+            int inputGroupsCount, int remainder, string alphabet, char? padSymbol)
         {
             fixed (byte* pInput = &input[inputOffset])
             fixed (char* pOutput = &output[outputOffset])
-            fixed (char* pAlphabet = &alphabet[0])
+            fixed (char* pAlphabet = alphabet)
             {
                 ToBase32GroupsUnsafe(pInput, pOutput, pAlphabet, inputGroupsCount);
                 if (remainder <= 0)
@@ -101,7 +96,7 @@ namespace Wiry.Base32
             }
         }
 
-        public static string ToBase32(byte[] buffer, int offset, int count, char[] alphabet, char? padSymbol)
+        public static string ToBase32(byte[] buffer, int offset, int count, string alphabet, char? padSymbol)
         {
             if (buffer == null)
                 throw new ArgumentNullException(nameof(buffer));
@@ -111,6 +106,12 @@ namespace Wiry.Base32
 
             if (count < 0 || count > buffer.Length - offset)
                 throw new ArgumentException(nameof(count));
+
+            if (alphabet == null)
+                throw new ArgumentNullException(nameof(alphabet));
+
+            if (alphabet.Length < 32)
+                throw new ArgumentException("Alphabet length must be greater or equal than 32");
 
             if (count == 0)
                 return string.Empty;
