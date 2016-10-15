@@ -12,6 +12,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Wiry.Base32", "src\Wiry.Base32\Wiry.Base32.xproj", "{BC0A0CFE-1704-4B20-8CE7-939539F7C3AF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C8808EB6-52FE-440E-987A-783101EEA63D}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "UnitTests", "tests\UnitTests\UnitTests.xproj", "{984F6EB3-C56A-45C0-AD36-E675B749567A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,11 +26,16 @@ Global
 		{BC0A0CFE-1704-4B20-8CE7-939539F7C3AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC0A0CFE-1704-4B20-8CE7-939539F7C3AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC0A0CFE-1704-4B20-8CE7-939539F7C3AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{984F6EB3-C56A-45C0-AD36-E675B749567A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{984F6EB3-C56A-45C0-AD36-E675B749567A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{984F6EB3-C56A-45C0-AD36-E675B749567A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{984F6EB3-C56A-45C0-AD36-E675B749567A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{BC0A0CFE-1704-4B20-8CE7-939539F7C3AF} = {58CCA979-6409-4852-9DC1-DEF1F668597A}
+		{984F6EB3-C56A-45C0-AD36-E675B749567A} = {C8808EB6-52FE-440E-987A-783101EEA63D}
 	EndGlobalSection
 EndGlobal

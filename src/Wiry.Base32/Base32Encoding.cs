@@ -112,6 +112,9 @@ namespace Wiry.Base32
             if (count < 0 || count > buffer.Length - offset)
                 throw new ArgumentException(nameof(count));
 
+            if (count == 0)
+                return string.Empty;
+
             int groupsCount = count / 5;
             int remainder = count % 5;
 
@@ -125,7 +128,7 @@ namespace Wiry.Base32
                 symbolsCount += 8;
             }
 
-            char[] symbols = new char[symbolsCount];
+            var symbols = new char[symbolsCount];
             ToBase32Unsafe(buffer, offset, symbols, 0, groupsCount, remainder, alphabet, padSymbol);
             return new string(symbols);
         }
