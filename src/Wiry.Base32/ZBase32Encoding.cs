@@ -8,5 +8,10 @@
         {
             return ToBase32(bytes, index, count, Alphabet, null);
         }
+
+        public override byte[] ToBytes(string encoded, int index, int length)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

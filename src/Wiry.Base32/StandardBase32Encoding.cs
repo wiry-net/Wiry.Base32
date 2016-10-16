@@ -8,5 +8,10 @@
         {
             return ToBase32(bytes, index, count, Alphabet, '=');
         }
+
+        public override byte[] ToBytes(string encoded, int index, int length)
+        {
+            return ToBytes(encoded, index, length, '=', GetOrCreateLookupTable(Alphabet, '='));
+        }
     }
 }
