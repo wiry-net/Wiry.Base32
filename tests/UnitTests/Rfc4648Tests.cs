@@ -166,11 +166,16 @@ namespace UnitTests
         }
 
         [Fact]
-        public void Base32_Test_Complex2()
+        public void Base32_Test_Complex2_Encode()
         {
             string b1 = EncodeBase32("bar");
             string b2 = EncodeBase32("foobar", 3, 3);
             Assert.Equal(b1, b2);
+        }
+
+        public void Base32_Test_Complex2_Decode()
+        {
+            Assert.Equal("foobar", DecodeBase32("introMZXW6YTBOI======SomeData", 5, 16));
         }
 
         #endregion
@@ -188,6 +193,11 @@ namespace UnitTests
         private static string DecodeBase32(string encoded)
         {
             return Encoding.ASCII.GetString(Base32Encoding.Standard.ToBytes(encoded));
+        }
+
+        private static string DecodeBase32(string encoded, int index, int length)
+        {
+            return Encoding.ASCII.GetString(Base32Encoding.Standard.ToBytes(encoded, index, length));
         }
     }
 }

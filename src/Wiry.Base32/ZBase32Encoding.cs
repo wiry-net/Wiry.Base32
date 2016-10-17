@@ -11,7 +11,7 @@
 
         public override byte[] ToBytes(string encoded, int index, int length)
         {
-            throw new System.NotImplementedException();
+            return ToBytes(encoded, index, length, null, GetOrCreateLookupTable(Alphabet));
         }
     }
 }

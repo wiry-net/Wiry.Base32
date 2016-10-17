@@ -32,9 +32,9 @@ namespace Wiry.Base32
 
         public abstract byte[] ToBytes(string encoded, int index, int length);
 
-        protected LookupTable GetOrCreateLookupTable(string alphabet, char? padSymbol)
+        protected LookupTable GetOrCreateLookupTable(string alphabet)
         {
-            return _lookupTable ?? (_lookupTable = BuildLookupTable(alphabet, padSymbol));
+            return _lookupTable ?? (_lookupTable = BuildLookupTable(alphabet));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -51,7 +51,7 @@ namespace Wiry.Base32
 
         internal const int LookupTableNullItem = -1;
 
-        internal static LookupTable BuildLookupTable(string alphabet, char? padSymbol)
+        internal static LookupTable BuildLookupTable(string alphabet)
         {
             int[] codes = alphabet.Select(ch => (int)ch).ToArray();
             int min = codes.Min();
@@ -208,14 +208,17 @@ namespace Wiry.Base32
         internal static unsafe void ToBytesUnsafe(string encoded, int index, int length, byte[] output, int outputOffset,
             int encodedGroupsCount, int remainder, char? padSymbol, LookupTable lookupTable)
         {
-            fixed (char* pEncoded = encoded + index)
+            int[] lookupValues = lookupTable.Values;
+            int lowCode = lookupTable.LowCode;
+            fixed (char* pEncodedBegin = encoded)
             fixed (byte* pOutput = &output[outputOffset])
-            fixed (int* pLookup = lookupTable.Values)
+            fixed (int* pLookup = lookupValues)
             {
+                char* pEncoded = pEncodedBegin + index;
                 if (encodedGroupsCount > 0)
                 {
                     ToBytesGroupsUnsafe(pEncoded, pOutput, encodedGroupsCount, pLookup,
-                        lookupTable.Values.Length, lookupTable.LowCode);
+                        lookupValues.Length, lowCode);
                 }
 
                 if (remainder <= 0)
@@ -224,7 +227,7 @@ namespace Wiry.Base32
                 char* pEncodedRemainder = pEncoded + encodedGroupsCount * 8;
                 byte* pOutputRemainder = pOutput + encodedGroupsCount * 5;
                 ToBytesRemainderUnsafe(pEncodedRemainder, pOutputRemainder, remainder, pLookup,
-                    lookupTable.Values.Length, lookupTable.LowCode);
+                    lookupValues.Length, lowCode);
             }
         }
 

@@ -11,7 +11,7 @@
 
         public override byte[] ToBytes(string encoded, int index, int length)
         {
-            return ToBytes(encoded, index, length, '=', GetOrCreateLookupTable(Alphabet, '='));
+            return ToBytes(encoded, index, length, '=', GetOrCreateLookupTable(Alphabet));
         }
     }
 }
