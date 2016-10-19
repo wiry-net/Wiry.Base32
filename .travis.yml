@@ -7,3 +7,7 @@ os:
 dist: trusty
 sudo: required
 solution: Wiry.Base32.sln
+install:
+  - nuget restore Wiry.Base32.sln
+script:
+  - xbuild /p:Configuration=Release Wiry.Base32.sln
