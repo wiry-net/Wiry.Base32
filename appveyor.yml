@@ -1,6 +1,15 @@
 version: dev-{build}
 build_script:
-- cmd: build.cmd --version-suffix %APPVEYOR_BUILD_VERSION%
+- cmd: >-
+    SET
+
+    if not x%APPVEYOR_REPO_COMMIT_MESSAGE:release=%==x%APPVEYOR_REPO_COMMIT_MESSAGE% (
+        echo Make the release build (no version suffix)
+        build.cmd
+    ) else (
+        echo Make the regular dev build
+        build.cmd --version-suffix %APPVEYOR_BUILD_VERSION%
+    }
 test: off
 artifacts:
 - path: artifacts\*.nupkg
