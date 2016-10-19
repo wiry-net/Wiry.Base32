@@ -8,6 +8,4 @@ dist: trusty
 sudo: required
 solution: Wiry.Base32.sln
 script:
-  - wget -O build.sh https://gist.githubusercontent.com/dmitry-ra/0f6a6fa34efcaaf00150ad6d99d6205b/raw
-  - chmod +x ./build.sh
   - ./build.sh
