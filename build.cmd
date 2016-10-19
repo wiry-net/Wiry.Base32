@@ -5,7 +5,7 @@ echo Current folder: %cd%
 
 set projects=src\Wiry.Base32 tests\UnitTests
 set temp_dirs=bin obj
-set version_suffix=""
+set version_suffix=
 
 :parse_args
 if not "%1"=="" (

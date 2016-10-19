@@ -1,4 +1,7 @@
-version: 1.0.{build}
+version: dev-{build}
 build_script:
-- cmd: build.cmd
+- cmd: build.cmd --version-suffix %APPVEYOR_BUILD_VERSION%
 test: off
+artifacts:
+- path: artifacts\*.nupkg
+  name: NuGetPackages
