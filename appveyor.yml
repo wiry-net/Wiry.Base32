@@ -5,3 +5,10 @@ test: off
 artifacts:
 - path: artifacts\*.nupkg
   name: NuGetPackages
+deploy:
+  provider: NuGet
+  server: https://www.myget.org/F/wiry-net/api/v2/package
+  api_key:
+    secure: ItL4XEZ+i1DrVYGpgm/fZGZxtOvMBeJnrGluvs7U0Tak7PSQgWmmjqISNY2vxz8x
+  skip_symbols: true
+  artifact: NuGetPackages
