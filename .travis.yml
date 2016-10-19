@@ -4,4 +4,6 @@ dotnet: 1.0.0-preview2-003131
 os:
   - linux
   - osx
+dist: trusty
+sudo: required
 solution: Wiry.Base32.sln

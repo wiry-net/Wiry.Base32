@@ -18,15 +18,31 @@ namespace Wiry.Base32
 
         private volatile LookupTable _lookupTable;
 
+        /// <summary>
+        /// Get encoded string
+        /// </summary>
+        /// <param name="bytes">Data to encode</param>
+        /// <returns></returns>
         public virtual string GetString(byte[] bytes)
         {
+            if (bytes == null)
+                throw new ArgumentNullException(nameof(bytes));
+
             return GetString(bytes, 0, bytes.Length);
         }
 
         public abstract string GetString(byte[] bytes, int index, int count);
 
+        /// <summary>
+        /// Decode string to bytes
+        /// </summary>
+        /// <param name="encoded">Encoded data</param>
+        /// <returns></returns>
         public virtual byte[] ToBytes(string encoded)
         {
+            if (encoded == null)
+                throw new ArgumentNullException(nameof(encoded));
+
             return ToBytes(encoded, 0, encoded.Length);
         }
 
