@@ -1,6 +1,9 @@
 ﻿{
   "version": "1.0.0-*",
 
+  "title": "Wiry.Base32",
+  "copyright": "Dmitry Razumikhin, 2016",
+
   "buildOptions": {
     "allowUnsafe": true
   },
@@ -14,5 +17,12 @@
         "NETStandard.Library": "1.6.0"
       }
     }
+  },
+
+  "packOptions": {
+    "summary": "Wiry.Base32",
+    "tags": [ "base32", "z-base-32", "coreclr" ],
+    "projectUrl": "https://github.com/wiry-net/Base32",
+    "licenseUrl": "https://opensource.org/licenses/MIT"
   }
 }

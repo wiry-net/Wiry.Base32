@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (c) Dmitry Razumikhin, 2016.
+// Licensed under the MIT License.
+// See LICENSE in the project root for license information.
+
+using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -63,6 +67,27 @@ namespace Wiry.Base32
         internal static int GetBytesCount(int symbolsCount)
         {
             return symbolsCount * 5 / 8;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static unsafe char* ToBytesGroupInlined(int remainder, char* pEncoded, int* pLookup, int lookupSize,
+            int lowCode, ref ulong value)
+        {
+            for (int j = remainder; j != 0; j--)
+            {
+                int lookupIndex = *pEncoded - lowCode;
+                if (lookupIndex < 0 || lookupIndex >= lookupSize)
+                    throw new FormatException(ErrorMessageInvalidCharacter);
+
+                int item = *(pLookup + lookupIndex);
+                if (item == LookupTableNullItem)
+                    throw new FormatException(ErrorMessageInvalidCharacter);
+
+                value <<= 5;
+                value |= (byte)item;
+                pEncoded++;
+            }
+            return pEncoded;
         }
 
         internal const int LookupTableNullItem = -1;
@@ -162,25 +187,12 @@ namespace Wiry.Base32
             int* pLookup, int lookupSize, int lowCode)
         {
             ulong value = 0;
-            for (int i = 0; i < encodedGroupsCount; i++)
+            for (int i = encodedGroupsCount; i != 0; i--)
             {
-                for (int j = 0; j < 8; j++)
-                {
-                    int lookupIndex = *pEncoded - lowCode;
-                    if (lookupIndex < 0 || lookupIndex >= lookupSize)
-                        throw new FormatException(ErrorMessageInvalidCharacter);
-
-                    int item = *(pLookup + lookupIndex);
-                    if (item == LookupTableNullItem)
-                        throw new FormatException(ErrorMessageInvalidCharacter);
-
-                    value <<= 5;
-                    value |= (byte)item;
-                    pEncoded++;
-                }
+                pEncoded = ToBytesGroupInlined(8, pEncoded, pLookup, lookupSize, lowCode, ref value);
                 pOutput += 4;
                 byte* pNextPos = pOutput + 1;
-                for (int j = 0; j < 4; j++)
+                for (int j = 4; j != 0; j--)
                 {
                     *pOutput-- = (byte)value;
                     value >>= 8;
@@ -194,26 +206,14 @@ namespace Wiry.Base32
             int* pLookup, int lookupSize, int lowCode)
         {
             ulong value = 0;
-            for (int j = 0; j < remainder; j++)
-            {
-                int lookupIndex = *pEncoded - lowCode;
-                if (lookupIndex < 0 || lookupIndex >= lookupSize)
-                    throw new FormatException(ErrorMessageInvalidCharacter);
-
-                int item = *(pLookup + lookupIndex);
-                if (item == LookupTableNullItem)
-                    throw new FormatException(ErrorMessageInvalidCharacter);
-
-                value <<= 5;
-                value |= (byte)item;
-                pEncoded++;
-            }
+            ToBytesGroupInlined(remainder, pEncoded, pLookup, lookupSize, lowCode, ref value);
 
             int bytesCount = GetBytesCount(remainder);
             value >>= (5 - bytesCount) * 8 - (8 - remainder) * 5;
 
-            pOutput += bytesCount - 1;
-            for (int j = 1; j < bytesCount; j++)
+            bytesCount--;
+            pOutput += bytesCount;
+            for (int j = bytesCount; j != 0; j--)
             {
                 *pOutput-- = (byte)value;
                 value >>= 8;

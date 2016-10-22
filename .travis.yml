@@ -8,4 +8,4 @@ dist: trusty
 sudo: required
 solution: Wiry.Base32.sln
 script:
-  - ./build.sh
+  - ./build.sh --install-dependencies

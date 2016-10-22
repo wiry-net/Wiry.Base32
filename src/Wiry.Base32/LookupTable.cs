@@ -1,4 +1,8 @@
-﻿namespace Wiry.Base32
+﻿// Copyright (c) Dmitry Razumikhin, 2016.
+// Licensed under the MIT License.
+// See LICENSE in the project root for license information.
+
+namespace Wiry.Base32
 {
     public sealed class LookupTable
     {

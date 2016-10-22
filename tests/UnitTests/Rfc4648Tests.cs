@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (c) Dmitry Razumikhin, 2016.
+// Licensed under the MIT License.
+// See LICENSE in the project root for license information.
+
+using System;
 using System.Text;
 using Wiry.Base32;
 using Xunit;
