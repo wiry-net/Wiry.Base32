@@ -37,7 +37,7 @@ while [ "$1" != "" ]; do
     shift
 done
 
-if [ $skip_dnx_install = "0" ]
+if [ $skip_dependencies_installation = "0" ]
 then
     echo Starting dependencies installation...
     if [ $sys_name = "Linux" ]
@@ -49,7 +49,6 @@ then
     else
         exit 1
     fi
-    install_dnx
 else
     echo Skipping dependencies installation
 fi
