@@ -5,7 +5,10 @@
   "copyright": "Dmitry Razumikhin, 2016",
 
   "buildOptions": {
-    "allowUnsafe": true
+    "allowUnsafe": true,
+    "warningsAsErrors": true,
+    "xmlDoc": true,
+    "optimize": true
   },
 
   "dependencies": {},
@@ -21,7 +24,17 @@
 
   "packOptions": {
     "summary": "Wiry.Base32",
-    "tags": [ "base32", "z-base-32", "coreclr" ],
+    "authors": [ "Dmitry Razumikhin" ],
+    "tags": [
+      "base32",
+      "rfc4648",
+      "z-base-32",
+      "coreclr",
+      "core clr",
+      "netcore",
+      "netstandard",
+      "cross-platform"
+    ],
     "projectUrl": "https://github.com/wiry-net/Base32",
     "licenseUrl": "https://opensource.org/licenses/MIT"
   }

@@ -4,7 +4,7 @@
 
 namespace Wiry.Base32
 {
-    public sealed class LookupTable
+    internal sealed class LookupTable
     {
         public int LowCode { get; }
         public int[] Values { get; }

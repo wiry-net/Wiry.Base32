@@ -8,6 +8,9 @@ using System.Runtime.CompilerServices;
 
 namespace Wiry.Base32
 {
+    /// <summary>
+    /// Generic Base32 implementation
+    /// </summary>
     public abstract class Base32Encoding
     {
         private const string ErrorMessageInvalidLength = "Invalid length";
@@ -17,7 +20,14 @@ namespace Wiry.Base32
         private static volatile Base32Encoding _standard;
         private static volatile Base32Encoding _zBase32;
 
+        /// <summary>
+        /// Represent standard encoding defined in RFC 4648
+        /// </summary>
         public static Base32Encoding Standard => _standard ?? (_standard = new StandardBase32Encoding());
+
+        /// <summary>
+        /// Represent z-base-32 encoding by Zooko O'Whielacronx
+        /// </summary>
         public static Base32Encoding ZBase32 => _zBase32 ?? (_zBase32 = new ZBase32Encoding());
 
         private volatile LookupTable _lookupTable;
@@ -35,13 +45,14 @@ namespace Wiry.Base32
             return GetString(bytes, 0, bytes.Length);
         }
 
+        /// <summary>
+        /// When overridden in a derived class, encodes bytes a string.
+        /// </summary>
         public abstract string GetString(byte[] bytes, int index, int count);
 
         /// <summary>
-        /// Decode string to bytes
+        /// When overridden in a derived class, decodes string data to bytes.
         /// </summary>
-        /// <param name="encoded">Encoded data</param>
-        /// <returns></returns>
         public virtual byte[] ToBytes(string encoded)
         {
             if (encoded == null)
@@ -50,9 +61,12 @@ namespace Wiry.Base32
             return ToBytes(encoded, 0, encoded.Length);
         }
 
+        /// <summary>
+        /// When overridden in a derived class, decodes string data to bytes.
+        /// </summary>
         public abstract byte[] ToBytes(string encoded, int index, int length);
 
-        protected LookupTable GetOrCreateLookupTable(string alphabet)
+        internal LookupTable GetOrCreateLookupTable(string alphabet)
         {
             return _lookupTable ?? (_lookupTable = BuildLookupTable(alphabet));
         }
@@ -67,27 +81,6 @@ namespace Wiry.Base32
         internal static int GetBytesCount(int symbolsCount)
         {
             return symbolsCount * 5 / 8;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static unsafe char* ToBytesGroupInlined(int remainder, char* pEncoded, int* pLookup, int lookupSize,
-            int lowCode, ref ulong value)
-        {
-            for (int j = remainder; j != 0; j--)
-            {
-                int lookupIndex = *pEncoded - lowCode;
-                if (lookupIndex < 0 || lookupIndex >= lookupSize)
-                    throw new FormatException(ErrorMessageInvalidCharacter);
-
-                int item = *(pLookup + lookupIndex);
-                if (item == LookupTableNullItem)
-                    throw new FormatException(ErrorMessageInvalidCharacter);
-
-                value <<= 5;
-                value |= (byte)item;
-                pEncoded++;
-            }
-            return pEncoded;
         }
 
         internal const int LookupTableNullItem = -1;
@@ -189,7 +182,20 @@ namespace Wiry.Base32
             ulong value = 0;
             for (int i = encodedGroupsCount; i != 0; i--)
             {
-                pEncoded = ToBytesGroupInlined(8, pEncoded, pLookup, lookupSize, lowCode, ref value);
+                for (int j = 8; j != 0; j--)
+                {
+                    int lookupIndex = *pEncoded - lowCode;
+                    if (lookupIndex < 0 || lookupIndex >= lookupSize)
+                        throw new FormatException(ErrorMessageInvalidCharacter);
+
+                    int item = *(pLookup + lookupIndex);
+                    if (item == LookupTableNullItem)
+                        throw new FormatException(ErrorMessageInvalidCharacter);
+
+                    value <<= 5;
+                    value |= (byte)item;
+                    pEncoded++;
+                }
                 pOutput += 4;
                 byte* pNextPos = pOutput + 1;
                 for (int j = 4; j != 0; j--)
@@ -206,7 +212,20 @@ namespace Wiry.Base32
             int* pLookup, int lookupSize, int lowCode)
         {
             ulong value = 0;
-            ToBytesGroupInlined(remainder, pEncoded, pLookup, lookupSize, lowCode, ref value);
+            for (int j = remainder; j != 0; j--)
+            {
+                int lookupIndex = *pEncoded - lowCode;
+                if (lookupIndex < 0 || lookupIndex >= lookupSize)
+                    throw new FormatException(ErrorMessageInvalidCharacter);
+
+                int item = *(pLookup + lookupIndex);
+                if (item == LookupTableNullItem)
+                    throw new FormatException(ErrorMessageInvalidCharacter);
+
+                value <<= 5;
+                value |= (byte)item;
+                pEncoded++;
+            }
 
             int bytesCount = GetBytesCount(remainder);
             value >>= (5 - bytesCount) * 8 - (8 - remainder) * 5;
@@ -247,7 +266,7 @@ namespace Wiry.Base32
             }
         }
 
-        public static string ToBase32(byte[] bytes, int index, int count, string alphabet, char? padSymbol)
+        internal static string ToBase32(byte[] bytes, int index, int count, string alphabet, char? padSymbol)
         {
             if (bytes == null)
                 throw new ArgumentNullException(nameof(bytes));
@@ -285,7 +304,7 @@ namespace Wiry.Base32
             return new string(symbols);
         }
 
-        public static byte[] ToBytes(string encoded, int index, int length, char? padSymbol, LookupTable lookupTable)
+        internal static byte[] ToBytes(string encoded, int index, int length, char? padSymbol, LookupTable lookupTable)
         {
             if (encoded == null)
                 throw new ArgumentNullException(nameof(encoded));
