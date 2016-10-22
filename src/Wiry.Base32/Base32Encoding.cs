@@ -35,8 +35,6 @@ namespace Wiry.Base32
         /// <summary>
         /// Get encoded string
         /// </summary>
-        /// <param name="bytes">Data to encode</param>
-        /// <returns></returns>
         public virtual string GetString(byte[] bytes)
         {
             if (bytes == null)

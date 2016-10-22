@@ -3,6 +3,7 @@
 
   "title": "Wiry.Base32",
   "copyright": "Dmitry Razumikhin, 2016",
+  "authors": [ "Dmitry Razumikhin" ],
 
   "buildOptions": {
     "allowUnsafe": true,
@@ -24,7 +25,7 @@
 
   "packOptions": {
     "summary": "Wiry.Base32",
-    "authors": [ "Dmitry Razumikhin" ],
+    "owners": [ "Dmitry Razumikhin" ],
     "tags": [
       "base32",
       "rfc4648",
