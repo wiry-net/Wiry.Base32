@@ -2,7 +2,9 @@
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Wiry.Base32")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Base32 and ZBase32 encoding library")]
+[assembly: AssemblyVersion("1.0.5.0")]
+[assembly: AssemblyFileVersion("1.0.5.0")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Wiry.Base32")]

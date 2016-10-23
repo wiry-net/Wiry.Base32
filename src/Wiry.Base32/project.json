@@ -1,7 +1,8 @@
 ﻿{
-  "version": "1.0.0-*",
+  "version": "1.0.5-*",
 
   "title": "Wiry.Base32",
+  "description": "Base32 and ZBase32 encoding library",
   "copyright": "Dmitry Razumikhin, 2016",
   "authors": [ "Dmitry Razumikhin" ],
 
@@ -24,11 +25,12 @@
   },
 
   "packOptions": {
-    "summary": "Wiry.Base32",
+    "summary": "Base32 and ZBase32 encoding library",
     "owners": [ "Dmitry Razumikhin" ],
     "tags": [
       "base32",
       "rfc4648",
+      "zbase32",
       "z-base-32",
       "coreclr",
       "core clr",
