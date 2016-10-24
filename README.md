@@ -1,8 +1,8 @@
 # Wiry.Base32
 
-[![NuGet](https://img.shields.io/nuget/v/Wiry.Base32.svg)]() [![License](https://img.shields.io/github/license/wiry-net/base32.svg)](https://github.com/wiry-net/Base32)
+[![NuGet](https://img.shields.io/nuget/v/Wiry.Base32.svg)](https://www.nuget.org/packages/Wiry.Base32) [![License](https://img.shields.io/github/license/wiry-net/base32.svg)](https://github.com/wiry-net/Base32/blob/master/LICENSE)
 
-Base32 and ZBase32 encoding and decoding library.
+**Base32 and ZBase32 encoding and decoding library.**
 
 AppVeyor (Windows): [![AppVeyor](https://ci.appveyor.com/api/projects/status/o4vfx9fx35vfmh37?svg=true)](https://ci.appveyor.com/project/dmitry-ra/base32)
 
