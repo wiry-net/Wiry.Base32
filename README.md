@@ -90,11 +90,9 @@ Test configuration: Win10 x64 @ Intel Core 2 Quad Q9550.
 ![Decode duration](https://raw.githubusercontent.com/dmitry-ra/benchmarks/master/comparative/Base32Encoding/Base32BenchmarkNet452/results/decode-duration-chart-920x515.png)
 
 ### References
-[Base32 in Wikipedia](https://en.wikipedia.org/wiki/Base32)
-
-[RFC4648](https://tools.ietf.org/html/rfc4648)
-
-[z-base-32](https://philzimmermann.com/docs/human-oriented-base-32-encoding.txt)
+- [Base32 in Wikipedia](https://en.wikipedia.org/wiki/Base32)
+- [RFC4648](https://tools.ietf.org/html/rfc4648)
+- [z-base-32](https://philzimmermann.com/docs/human-oriented-base-32-encoding.txt)
 
 ### License
 Copyright (c) Dmitry Razumikhin, 2016.
