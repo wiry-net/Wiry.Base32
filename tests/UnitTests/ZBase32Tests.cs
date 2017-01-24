@@ -59,6 +59,18 @@ namespace UnitTests
             Assert.Throws<FormatException>(() => Base32Encoding.ZBase32.ToBytes("4!7ye"));
         }
 
+        [Fact]
+        public void ZBase32_Test_1char()
+        {
+            Base32Encoding.ZBase32.ToBytes("m");
+        }
+
+        [Fact]
+        public void ZBase32_Test_9chars()
+        {
+            Base32Encoding.ZBase32.ToBytes("gaaaaaaaa");
+        }
+
         #endregion
 
         #region Complex tests
@@ -96,6 +108,32 @@ namespace UnitTests
         {
             string text = Encoding.ASCII.GetString(Base32Encoding.ZBase32.ToBytes("+++jb1sa5dx@@@@@@", 3, 8));
             Assert.Equal("Hello", text);
+        }
+
+        #endregion
+
+        #region Fuzzy test
+
+        [Fact]
+        public void ZBase32_Test_Fuzzy1()
+        {
+            int repeats = 1000000;
+            int minInputSize = 0;
+            int maxInputSize = 100;
+            const string alphabet = "ybndrfg8ejkmcpqxot1uwisza345h769";
+
+            var rnd = new Random(20170125);
+            for (int i = 0; i < repeats; i++)
+            {
+                int size = rnd.Next(minInputSize, maxInputSize + 1);
+                var sb = new StringBuilder(size);
+                for (int j = 0; j < size; j++)
+                {
+                    sb.Append(alphabet[rnd.Next(alphabet.Length)]);
+                }
+                string zbase32 = sb.ToString();
+                Base32Encoding.ZBase32.ToBytes(zbase32); // crash or not to crash
+            }
         }
 
         #endregion

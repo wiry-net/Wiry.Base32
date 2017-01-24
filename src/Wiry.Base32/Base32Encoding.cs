@@ -254,7 +254,7 @@ namespace Wiry.Base32
                         lookupValues.Length, lowCode);
                 }
 
-                if (remainder <= 0)
+                if (remainder <= 1)
                     return;
 
                 char* pEncodedRemainder = pEncoded + encodedGroupsCount * 8;
@@ -360,7 +360,10 @@ namespace Wiry.Base32
             bytesCount += groupsCount * 5;
 
             var bytes = new byte[bytesCount];
-            ToBytesUnsafe(encoded, index, length, bytes, 0, groupsCount, remainder, padSymbol, lookupTable);
+            if (bytesCount > 0)
+            {
+                ToBytesUnsafe(encoded, index, length, bytes, 0, groupsCount, remainder, padSymbol, lookupTable);
+            }
             return bytes;
         }
     }
