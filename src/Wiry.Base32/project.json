@@ -1,9 +1,9 @@
 ﻿{
-  "version": "1.0.5-*",
+  "version": "1.0.6-*",
 
   "title": "Wiry.Base32",
   "description": "Base32 and ZBase32 encoding library",
-  "copyright": "Dmitry Razumikhin, 2016",
+  "copyright": "Dmitry Razumikhin, 2016-2017",
   "authors": [ "Dmitry Razumikhin" ],
 
   "buildOptions": {

@@ -95,6 +95,6 @@ Test configuration: Win10 x64 @ Intel Core 2 Quad Q9550.
 - [z-base-32](https://philzimmermann.com/docs/human-oriented-base-32-encoding.txt)
 
 ### License
-Copyright (c) Dmitry Razumikhin, 2016.
+Copyright (c) Dmitry Razumikhin, 2016-2017.
 
 Licensed under the MIT License.

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Dmitry Razumikhin, 2016.
+﻿// Copyright (c) Dmitry Razumikhin, 2016-2017.
 // Licensed under the MIT License.
 // See LICENSE in the project root for license information.
 
