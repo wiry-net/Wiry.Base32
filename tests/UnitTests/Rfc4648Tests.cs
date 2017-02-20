@@ -177,6 +177,7 @@ namespace UnitTests
             Assert.Equal(b1, b2);
         }
 
+        [Fact]
         public void Base32_Test_Complex2_Decode()
         {
             Assert.Equal("foobar", DecodeBase32("introMZXW6YTBOI======SomeData", 5, 16));
