@@ -38,7 +38,7 @@
       "netstandard",
       "cross-platform"
     ],
-    "projectUrl": "https://github.com/wiry-net/Base32",
+    "projectUrl": "https://github.com/wiry-net/Wiry.Base32",
     "licenseUrl": "https://opensource.org/licenses/MIT"
   }
 }
