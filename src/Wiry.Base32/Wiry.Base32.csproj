@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Base32 and ZBase32 encoding library</Description>
+    <Description>Base32 and ZBase32 encoding library. Re-packaged with VS2017 and targetting netstandard1.1.</Description>
     <Copyright>Dmitry Razumikhin, 2016-2017</Copyright>
     <AssemblyTitle>Wiry.Base32</AssemblyTitle>
     <VersionPrefix>1.0.6</VersionPrefix>
@@ -11,11 +11,13 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyName>Wiry.Base32</AssemblyName>
-    <PackageId>Wiry.Base32</PackageId>
+    <PackageId>Wiry.Base32.Patched</PackageId>
     <PackageTags>base32;rfc4648;zbase32;z-base-32;coreclr;core clr;netcore;netstandard;cross-platform</PackageTags>
     <PackageProjectUrl>https://github.com/wiry-net/Wiry.Base32</PackageProjectUrl>
     <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Product>Wiry.Base32.Patched</Product>
+    <Version>1.0.6.1</Version>
   </PropertyGroup>
 
 </Project>
