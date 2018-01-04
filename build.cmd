@@ -39,8 +39,8 @@ dotnet build --configuration Release "src\Wiry.Base32"
 dotnet test --configuration Release "tests\UnitTests"
 
 if "!version_suffix!"=="" (
-    dotnet pack "src\Wiry.Base32" --configuration Release --no-build --output "artifacts"
+    dotnet pack "src\Wiry.Base32" --configuration Release --no-build --output "..\..\artifacts"
 ) else (
     echo Packing with version suffix !version_suffix!...
-    dotnet pack "src\Wiry.Base32" --configuration Release --no-build --output "artifacts" --version-suffix !version_suffix!
+    dotnet pack "src\Wiry.Base32" --configuration Release --no-build --output "..\..\artifacts" --version-suffix !version_suffix!
 )
