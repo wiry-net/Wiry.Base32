@@ -1,21 +1,32 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Description>Base32 and ZBase32 encoding library</Description>
-    <Copyright>Dmitry Razumikhin, 2016-2017</Copyright>
-    <AssemblyTitle>Wiry.Base32</AssemblyTitle>
-    <VersionPrefix>1.0.6</VersionPrefix>
-    <Authors>Dmitry Razumikhin</Authors>
     <TargetFramework>netstandard1.1</TargetFramework>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyName>Wiry.Base32</AssemblyName>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Wiry.Base32</PackageId>
-    <PackageTags>base32;rfc4648;zbase32;z-base-32;coreclr;core clr;netcore;netstandard;cross-platform</PackageTags>
-    <PackageProjectUrl>https://github.com/wiry-net/Wiry.Base32</PackageProjectUrl>
+    <Version>1.0.7</Version>
+    <Authors>Dmitry Razumikhin</Authors>
+    <Company>Dmitry Razumikhin</Company>
+    <Description>Base32 and ZBase32 encoding library</Description>
+    <Copyright>Dmitry Razumikhin, 2016-2018</Copyright>
     <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/wiry-net/Wiry.Base32</PackageProjectUrl>
+    <PackageTags>base32;rfc4648;zbase32;z-base-32;coreclr;core clr;netcore;netstandard;cross-platform</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>false</Optimize>
+    <DocumentationFile>bin\Debug\netstandard1.1\Wiry.Base32.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DocumentationFile>bin\Release\netstandard1.1\Wiry.Base32.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
 
 </Project>

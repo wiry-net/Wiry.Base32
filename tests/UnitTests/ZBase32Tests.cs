@@ -1,4 +1,4 @@
-﻿// Copyright (c) Dmitry Razumikhin, 2016-2017.
+﻿// Copyright (c) Dmitry Razumikhin, 2016-2018.
 // Licensed under the MIT License.
 // See LICENSE in the project root for license information.
 
@@ -46,7 +46,7 @@ namespace UnitTests
         [Fact]
         public void ZBase32_Test4()
         {
-            Assert.Equal(0, Base32Encoding.ZBase32.ToBytes(string.Empty).Length);
+            Assert.Empty(Base32Encoding.ZBase32.ToBytes(string.Empty));
         }
 
         #endregion
