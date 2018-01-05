@@ -1,6 +1,15 @@
-version: dev-{build}
+version: 1.0.8-dev-{build}
+image: Visual Studio 2017
+dotnet_csproj:
+  patch: true
+  file: '**\*.csproj'
+  version: '{version}'
+  package_version: '{version}'
+  assembly_version: '{version}'
+  file_version: '{version}'
+  informational_version: '{version}'
 build_script:
-- cmd: build\appveyor-build.cmd
+- cmd: build.cmd
 test: off
 artifacts:
 - path: artifacts\*.nupkg
