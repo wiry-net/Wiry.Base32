@@ -17,5 +17,10 @@ namespace Wiry.Base32
         {
             return ToBytes(encoded, index, length, '=', GetOrCreateLookupTable(Alphabet));
         }
+
+        public override ValidationResult Validate(string encoded, int index, int length)
+        {
+            return Validate(encoded, index, length, '=', GetOrCreateLookupTable(Alphabet), Alphabet);
+        }
     }
 }

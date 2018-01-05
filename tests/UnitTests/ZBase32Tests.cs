@@ -137,5 +137,41 @@ namespace UnitTests
         }
 
         #endregion
+
+        #region Validation tests
+
+        [Fact]
+        public void ZBase32_Test_Validate1()
+        {
+            var test = Base32Encoding.ZBase32.CheckValidation(null);
+            Assert.Equal(ValidationResult.InvalidArguments, test.Result);
+            Assert.IsType<ArgumentNullException>(test.ToBytesError);
+        }
+
+        [Fact]
+        public void ZBase32_Test_Validate2()
+        {
+            var test = Base32Encoding.ZBase32.CheckValidation("gr3doqbw8radnqb3goa");
+            Assert.Equal(ValidationResult.InvalidLength, test.Result);
+            Assert.Null(test.ToBytesError);
+        }
+
+        [Fact]
+        public void ZBase32_Test_Validate3()
+        {
+            var test = Base32Encoding.ZBase32.CheckValidation("gr3doqbw8radnqb3go");
+            Assert.Equal(ValidationResult.Ok, test.Result);
+            Assert.Null(test.ToBytesError);
+        }
+
+        [Fact]
+        public void ZBase32_Test_Validate4()
+        {
+            var test = Base32Encoding.ZBase32.CheckValidation("gr3doqbw!radnqb3go"); // bad symbol
+            Assert.Equal(ValidationResult.InvalidCharacter, test.Result);
+            Assert.IsType<FormatException>(test.ToBytesError);
+        }
+
+        #endregion
     }
 }

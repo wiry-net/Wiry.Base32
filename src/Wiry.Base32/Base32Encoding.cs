@@ -64,6 +64,22 @@ namespace Wiry.Base32
         /// </summary>
         public abstract byte[] ToBytes(string encoded, int index, int length);
 
+        /// <summary>
+        /// Validate input data.
+        /// </summary>
+        public virtual ValidationResult Validate(string encoded)
+        {
+            if (encoded == null)
+                return ValidationResult.InvalidArguments;
+
+            return Validate(encoded, 0, encoded.Length);
+        }
+
+        /// <summary>
+        /// Validate input data
+        /// </summary>
+        public abstract ValidationResult Validate(string encoded, int index, int length);
+
         internal LookupTable GetOrCreateLookupTable(string alphabet)
         {
             return _lookupTable ?? (_lookupTable = BuildLookupTable(alphabet));
@@ -242,7 +258,7 @@ namespace Wiry.Base32
             *pOutput = (byte)value;
         }
 
-        internal static unsafe void ToBytesUnsafe(string encoded, int index, int length, byte[] output, int outputOffset,
+        internal static unsafe void ToBytesUnsafe(string encoded, int index, byte[] output, int outputOffset,
             int encodedGroupsCount, int remainder, char? padSymbol, LookupTable lookupTable)
         {
             int[] lookupValues = lookupTable.Values;
@@ -306,7 +322,7 @@ namespace Wiry.Base32
             return new string(symbols);
         }
 
-        internal static byte[] ToBytes(string encoded, int index, int length, char? padSymbol, LookupTable lookupTable)
+        internal static void CheckToBytesArguments(string encoded, int index, int length, LookupTable lookupTable)
         {
             if (encoded == null)
                 throw new ArgumentNullException(nameof(encoded));
@@ -319,10 +335,10 @@ namespace Wiry.Base32
 
             if (lookupTable == null)
                 throw new ArgumentNullException(nameof(lookupTable));
+        }
 
-            if (length == 0)
-                return new byte[0];
-
+        internal static int GetRemainderWithChecks(string encoded, int index, int length, char? padSymbol)
+        {
             int remainder;
             if (padSymbol != null)
             {
@@ -347,6 +363,17 @@ namespace Wiry.Base32
             {
                 remainder = length % 8;
             }
+            return remainder;
+        }
+
+        internal static byte[] ToBytes(string encoded, int index, int length, char? padSymbol, LookupTable lookupTable)
+        {
+            CheckToBytesArguments(encoded, index, length, lookupTable);
+
+            if (length == 0)
+                return new byte[0];
+
+            int remainder = GetRemainderWithChecks(encoded, index, length, padSymbol);
 
             int groupsCount = length / 8;
 
@@ -366,9 +393,76 @@ namespace Wiry.Base32
             var bytes = new byte[bytesCount];
             if (bytesCount > 0)
             {
-                ToBytesUnsafe(encoded, index, length, bytes, 0, groupsCount, remainder, padSymbol, lookupTable);
+                ToBytesUnsafe(encoded, index, bytes, 0, groupsCount, remainder, padSymbol, lookupTable);
             }
             return bytes;
+        }
+
+        internal static ValidationResult Validate(string encoded, int index, int length, char? padSymbol, LookupTable lookupTable, string alphabet)
+        {
+            try
+            {
+                CheckToBytesArguments(encoded, index, length, lookupTable);
+
+                int bytesCount = GetBytesCount(length);
+                int symbolsCount = GetSymbolsCount(bytesCount);
+                if (symbolsCount != length)
+                    return ValidationResult.InvalidLength;
+
+                try
+                {
+                    GetRemainderWithChecks(encoded, index, length, padSymbol);
+                }
+                catch (FormatException fex)
+                {
+                    switch (fex.Message)
+                    {
+                        case ErrorMessageInvalidLength:
+                            return ValidationResult.InvalidLength;
+
+                        case ErrorMessageInvalidPadding:
+                            return ValidationResult.InvalidPadding;
+
+                        default:
+                            throw;
+                    }
+                }
+
+                if (!CheckAlphabet(encoded, index, length, lookupTable))
+                    return ValidationResult.InvalidCharacter;
+
+                return ValidationResult.Ok;
+            }
+            catch
+            {
+                return ValidationResult.InvalidArguments;
+            }
+        }
+
+        internal static unsafe bool CheckAlphabet(string encoded, int index, int length, LookupTable lookupTable)
+        {
+            int[] lookupValues = lookupTable.Values;
+            int lowCode = lookupTable.LowCode;
+            int lookupSize = lookupValues.Length;
+            fixed (char* pEncodedBegin = encoded)
+            fixed (int* pLookup = lookupValues)
+            {
+                char* pEncoded = pEncodedBegin + index;
+                char* pEnd = pEncoded + length;
+                while (pEncoded < pEnd)
+                {
+                    int lookupIndex = *pEncoded - lowCode;
+                    if (lookupIndex < 0 || lookupIndex >= lookupSize)
+                        return false;
+
+                    int item = *(pLookup + lookupIndex);
+                    if (item == LookupTableNullItem)
+                        return false;
+
+                    pEncoded++;
+                }
+            }
+            return true;
         }
     }
 }
