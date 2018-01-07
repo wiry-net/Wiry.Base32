@@ -66,6 +66,45 @@ z-base-32: 'jb1sa5dxfoofq551pt1nn'
 Convert back from base32 successfully!
 Convert back from z-base-32 successfully!
 ```
+### Validation example
+```csharp
+using System;
+using Wiry.Base32;
+
+namespace ValidateConsoleApp
+{
+    class Program
+    {
+        static void Main()
+        {
+            var standard = Base32Encoding.Standard;
+            Console.WriteLine("S1) " + standard.Validate(null));
+            Console.WriteLine("S2) " + standard.Validate("MZXW6YQ="));
+            Console.WriteLine("S3) " + standard.Validate("MZ@W6YQ="));
+            Console.WriteLine("S4) " + standard.Validate("MZXW6YQ=="));
+            Console.WriteLine("S5) " + standard.Validate("========"));
+
+            var zbase = Base32Encoding.ZBase32;
+            Console.WriteLine("Z1) " + zbase.Validate(null));
+            Console.WriteLine("Z2) " + zbase.Validate("gr3doqbw8radnqb3go"));
+            Console.WriteLine("Z3) " + zbase.Validate("gr3doqbw8radnqb3goa"));
+            Console.WriteLine("Z4) " + zbase.Validate("gr3doqbw!radnqb3go"));
+        }
+    }
+}
+```
+Output:
+```
+S1) InvalidArguments
+S2) Ok
+S3) InvalidCharacter
+S4) InvalidLength
+S5) InvalidPadding
+Z1) InvalidArguments
+Z2) Ok
+Z3) InvalidLength
+Z4) InvalidCharacter
+```
 ### Benchmarks
 
 [Benchmark repository](https://github.com/dmitry-ra/benchmarks/tree/master/comparative/Base32Encoding)
