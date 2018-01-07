@@ -117,7 +117,7 @@ namespace UnitTests
         [Fact]
         public void ZBase32_Test_Fuzzy1()
         {
-            int repeats = 1000000;
+            int repeats = 2000000;
             int minInputSize = 0;
             int maxInputSize = 100;
             const string alphabet = "ybndrfg8ejkmcpqxot1uwisza345h769";
@@ -131,6 +131,7 @@ namespace UnitTests
                 {
                     sb.Append(alphabet[rnd.Next(alphabet.Length)]);
                 }
+
                 string zbase32 = sb.ToString();
                 Base32Encoding.ZBase32.ToBytes(zbase32); // crash or not to crash
             }
@@ -143,33 +144,34 @@ namespace UnitTests
         [Fact]
         public void ZBase32_Test_Validate1()
         {
-            var test = Base32Encoding.ZBase32.CheckValidation(null);
-            Assert.Equal(ValidationResult.InvalidArguments, test.Result);
-            Assert.IsType<ArgumentNullException>(test.ToBytesError);
-        }
-
-        [Fact]
-        public void ZBase32_Test_Validate2()
-        {
-            var test = Base32Encoding.ZBase32.CheckValidation("gr3doqbw8radnqb3goa");
-            Assert.Equal(ValidationResult.InvalidLength, test.Result);
-            Assert.Null(test.ToBytesError);
-        }
-
-        [Fact]
-        public void ZBase32_Test_Validate3()
-        {
             var test = Base32Encoding.ZBase32.CheckValidation("gr3doqbw8radnqb3go");
             Assert.Equal(ValidationResult.Ok, test.Result);
             Assert.Null(test.ToBytesError);
         }
 
         [Fact]
+        public void ZBase32_Test_Validate2()
+        {
+            var test = Base32Encoding.ZBase32.CheckValidation(null);
+            Assert.Equal(ValidationResult.InvalidArguments, test.Result);
+            Assert.IsType<ArgumentNullException>(test.ToBytesError);
+        }
+
+        [Fact]
+        public void ZBase32_Test_Validate3()
+        {
+            var test = Base32Encoding.ZBase32.CheckValidation("gr3doqbw8radnqb3goa");
+            Assert.Equal(ValidationResult.InvalidLength, test.Result); // Validate will detect an anomaly,
+            Assert.Null(test.ToBytesError); // but ToBytes will ignore extra symbols by design
+        }
+
+        [Fact]
         public void ZBase32_Test_Validate4()
         {
-            var test = Base32Encoding.ZBase32.CheckValidation("gr3doqbw!radnqb3go"); // bad symbol
+            var test = Base32Encoding.ZBase32.CheckValidation("gr3doqbw!radnqb3go"); // Invalid character
             Assert.Equal(ValidationResult.InvalidCharacter, test.Result);
             Assert.IsType<FormatException>(test.ToBytesError);
+            Assert.Contains("character", test.ToBytesError.Message);
         }
 
         #endregion

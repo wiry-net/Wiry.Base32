@@ -20,7 +20,7 @@ namespace Wiry.Base32
 
         public override ValidationResult Validate(string encoded, int index, int length)
         {
-            return Validate(encoded, index, length, null, GetOrCreateLookupTable(Alphabet), Alphabet);
+            return Validate(encoded, index, length, null, GetOrCreateLookupTable(Alphabet));
         }
     }
 }

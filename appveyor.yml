@@ -1,4 +1,4 @@
-version: 1.0.8-dev-{build}
+version: 1.1.0
 image: Visual Studio 2017
 dotnet_csproj:
   patch: true

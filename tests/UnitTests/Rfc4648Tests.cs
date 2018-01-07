@@ -185,6 +185,53 @@ namespace UnitTests
 
         #endregion
 
+        #region Validation tests
+
+        [Fact]
+        public void Base32_Test_Validate1()
+        {
+            var test = Base32Encoding.Standard.CheckValidation("MZXW6YQ=");
+            Assert.Equal(ValidationResult.Ok, test.Result);
+            Assert.Null(test.ToBytesError);
+        }
+
+        [Fact]
+        public void Base32_Test_Validate2()
+        {
+            var test = Base32Encoding.Standard.CheckValidation(null);
+            Assert.Equal(ValidationResult.InvalidArguments, test.Result);
+            Assert.IsType<ArgumentNullException>(test.ToBytesError);
+        }
+
+        [Fact]
+        public void Base32_Test_Validate3()
+        {
+            var test = Base32Encoding.Standard.CheckValidation("MZXW6YTBOI=====");
+            Assert.Equal(ValidationResult.InvalidLength, test.Result);
+            Assert.IsType<FormatException>(test.ToBytesError);
+            Assert.Contains("length", test.ToBytesError.Message);
+        }
+
+        [Fact]
+        public void Base32_Test_Validate4()
+        {
+            var test = Base32Encoding.Standard.CheckValidation("========");
+            Assert.Equal(ValidationResult.InvalidPadding, test.Result);
+            Assert.IsType<FormatException>(test.ToBytesError);
+            Assert.Contains("padding", test.ToBytesError.Message);
+        }
+
+        [Fact]
+        public void Base32_Test_Validate5()
+        {
+            var test = Base32Encoding.Standard.CheckValidation("MZX$6YQ="); // Invalid character
+            Assert.Equal(ValidationResult.InvalidCharacter, test.Result);
+            Assert.IsType<FormatException>(test.ToBytesError);
+            Assert.Contains("character", test.ToBytesError.Message);
+        }
+
+        #endregion
+
         private static string EncodeBase32(string input)
         {
             return Base32Encoding.Standard.GetString(Encoding.ASCII.GetBytes(input));

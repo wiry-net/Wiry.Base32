@@ -4,7 +4,7 @@
     <TargetFramework>netstandard1.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Wiry.Base32</PackageId>
-    <Version>1.0.7</Version>
+    <Version>1.1.0</Version>
     <Authors>Dmitry Razumikhin</Authors>
     <Company>Dmitry Razumikhin</Company>
     <Description>Base32 and ZBase32 encoding library</Description>
@@ -12,6 +12,8 @@
     <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/wiry-net/Wiry.Base32</PackageProjectUrl>
     <PackageTags>base32;rfc4648;zbase32;z-base-32;coreclr;core clr;netcore;netstandard;cross-platform</PackageTags>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -20,6 +22,7 @@
     <DocumentationFile>bin\Debug\netstandard1.1\Wiry.Base32.xml</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
+    <NoWarn />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -27,6 +30,7 @@
     <DocumentationFile>bin\Release\netstandard1.1\Wiry.Base32.xml</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
+    <NoWarn />
   </PropertyGroup>
 
 </Project>
