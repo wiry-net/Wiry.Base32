@@ -1,13 +1,5 @@
-version: 1.1.0
+version: 1.1.1
 image: Visual Studio 2017
-dotnet_csproj:
-  patch: true
-  file: '**\*.csproj'
-  version: '{version}'
-  package_version: '{version}'
-  assembly_version: '{version}'
-  file_version: '{version}'
-  informational_version: '{version}'
 build_script:
 - cmd: build.cmd
 test: off
