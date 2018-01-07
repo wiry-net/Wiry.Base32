@@ -6,11 +6,11 @@
 
 AppVeyor (Windows): [![AppVeyor](https://ci.appveyor.com/api/projects/status/o4vfx9fx35vfmh37?svg=true)](https://ci.appveyor.com/project/dmitry-ra/base32)
 
-Travis CI (Linux): [![Travis CI](https://travis-ci.org/wiry-net/Base32.svg?branch=master)](https://travis-ci.org/wiry-net/Base32)
+Travis CI (Linux & macOS): [![Travis CI](https://travis-ci.org/wiry-net/Wiry.Base32.svg?branch=master)](https://travis-ci.org/wiry-net/Wiry.Base32)
 
 ### .NET compatibility:
-- .NET Framework (4.5.2+)
-- .NET Core (netstandard 1.6+)
+- .NET Framework (4.5+)
+- .NET Core (netstandard 1.1+)
 
 ### Installation
 
@@ -76,18 +76,18 @@ Test configuration: Win10 x64 @ Intel Core 2 Quad Q9550.
 
 |  Library (alphabetical order) | Encoding | Decoding   |
 |  ---------------------------- | -------- | --------   |
-|  .NET Base64 (baseline)       |  219 ms  |  371 ms    |
-|  Albireo.Base32 v1.0.1        |  954 ms  |  3790 ms   |
-|  Base3264-UrlEncoder v1.0.1   |  2581 ms |  46706 ms  |
-|  SimpleBase v1.2.0            |  513 ms  |  642 ms    |
-|  WallF.BaseNEncodings v1.0.0  |  603 ms  |  3528 ms   |
-|**Wiry.Base32 v1.0.5**         |**372 ms**|**410 ms**  |
+|  .NET Base64 (baseline)       |  202 ms  |  336 ms    |
+|  Albireo.Base32 v1.0.1        |  822 ms  |  3627 ms   |
+|  Base3264-UrlEncoder v1.0.2   |  2839 ms |  43972 ms  |
+|  SimpleBase v1.3.1            |  480 ms  |  673 ms    |
+|  WallF.BaseNEncodings v1.0.0  |  587 ms  |  3342 ms   |
+|**Wiry.Base32 v1.1.1**         |**331 ms**|**388 ms**  |
 
 **Test 2**: random data size from 0 to 100 bytes (500 sessions by 20000 repeats):
 
-![Encode duration](https://raw.githubusercontent.com/dmitry-ra/benchmarks/master/comparative/Base32Encoding/Base32BenchmarkNet452/results/encode-duration-chart-920x515.png)
+![Encode duration](https://raw.githubusercontent.com/dmitry-ra/benchmarks/master/comparative/Base32Encoding/Base32BenchmarkNet452/results/encode-duration-chart-920x515_1.1.1_20180108.png)
 
-![Decode duration](https://raw.githubusercontent.com/dmitry-ra/benchmarks/master/comparative/Base32Encoding/Base32BenchmarkNet452/results/decode-duration-chart-920x515.png)
+![Decode duration](https://raw.githubusercontent.com/dmitry-ra/benchmarks/master/comparative/Base32Encoding/Base32BenchmarkNet452/results/decode-duration-chart-920x515_1.1.1_20180108.png)
 
 ### References
 - [Base32 in Wikipedia](https://en.wikipedia.org/wiki/Base32)
@@ -95,6 +95,6 @@ Test configuration: Win10 x64 @ Intel Core 2 Quad Q9550.
 - [z-base-32](https://philzimmermann.com/docs/human-oriented-base-32-encoding.txt)
 
 ### License
-Copyright (c) Dmitry Razumikhin, 2016-2017.
+Copyright (c) Dmitry Razumikhin, 2016-2018.
 
 Licensed under the MIT License.
