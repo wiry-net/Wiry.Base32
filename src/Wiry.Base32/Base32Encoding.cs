@@ -85,18 +85,6 @@ namespace Wiry.Base32
             return _lookupTable ?? (_lookupTable = BuildLookupTable(alphabet));
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int GetSymbolsCount(int bytesCount)
-        {
-            return (bytesCount * 8 + 4) / 5;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int GetBytesCount(int symbolsCount)
-        {
-            return symbolsCount * 5 / 8;
-        }
-
         private const int LookupTableNullItem = -1;
 
         private static LookupTable BuildLookupTable(string alphabet)
@@ -155,7 +143,7 @@ namespace Wiry.Base32
                 value |= *pInput++;
             }
 
-            int symbols = GetSymbolsCount(remainder);
+            int symbols = (remainder * 8 + 4) / 5;
             value <<= (5 - remainder) * 8 - (8 - symbols) * 5;
 
             pOutput += symbols - 1;
@@ -251,7 +239,7 @@ namespace Wiry.Base32
                 pEncoded++;
             }
 
-            int bytesCount = GetBytesCount(remainder);
+            int bytesCount = remainder * 5 / 8;
             value >>= (5 - bytesCount) * 8 - (8 - remainder) * 5;
 
             bytesCount--;
@@ -317,7 +305,7 @@ namespace Wiry.Base32
             int symbolsCount = groupsCount * 8;
             if (padSymbol == null)
             {
-                symbolsCount += GetSymbolsCount(remainder);
+                symbolsCount += (remainder * 8 + 4) / 5;
             }
             else if (remainder != 0)
             {
@@ -386,7 +374,7 @@ namespace Wiry.Base32
                     groupsCount--;
                 }
 
-                bytesCount = GetBytesCount(remainder);
+                bytesCount = remainder * 5 / 8;
             }
 
             bytesCount += groupsCount * 5;
@@ -407,8 +395,8 @@ namespace Wiry.Base32
             {
                 CheckToBytesArguments(encoded, index, length, lookupTable);
 
-                int bytesCount = GetBytesCount(length);
-                int symbolsCount = GetSymbolsCount(bytesCount);
+                int bytesCount = length * 5 / 8;
+                int symbolsCount = (bytesCount * 8 + 4) / 5;
                 if (symbolsCount != length)
                     return ValidationResult.InvalidLength;
 
