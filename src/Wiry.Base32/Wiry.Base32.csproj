@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard1.1;net45</TargetFrameworks>
@@ -8,8 +8,8 @@
     <Authors>Dmitry Razumikhin</Authors>
     <Company>Dmitry Razumikhin</Company>
     <Description>Base32 and ZBase32 encoding library</Description>
-    <Copyright>Dmitry Razumikhin, 2016-2018</Copyright>
-    <PackageLicenseUrl>https://opensource.org/licenses/MIT</PackageLicenseUrl>
+    <Copyright>Dmitry Razumikhin, 2016-2019</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/wiry-net/Wiry.Base32</PackageProjectUrl>
     <PackageTags>base32;rfc4648;zbase32;z-base-32;coreclr;core clr;netcore;netstandard;cross-platform</PackageTags>
     <AssemblyVersion>1.1.1.0</AssemblyVersion>
