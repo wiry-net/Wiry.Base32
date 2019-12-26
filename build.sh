@@ -16,6 +16,6 @@ echo System: $sys_name
 
 dotnet restore
 
-dotnet build --configuration Release --framework netstandard1.1 src/Wiry.Base32
+dotnet build --configuration Release --framework netstandard2.0 src/Wiry.Base32
 
 dotnet test --configuration Release tests/UnitTests
