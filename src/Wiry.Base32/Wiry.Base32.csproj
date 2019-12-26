@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.1;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Wiry.Base32</PackageId>
-    <Version>1.1.1</Version>
+    <Version>1.1.20-dev</Version>
     <Authors>Dmitry Razumikhin</Authors>
     <Company>Dmitry Razumikhin</Company>
     <Description>Base32 and ZBase32 encoding library</Description>
@@ -19,7 +19,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>false</Optimize>
-    <DocumentationFile>bin\Debug\netstandard1.1\Wiry.Base32.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\Wiry.Base32.xml</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <NoWarn />
@@ -27,7 +27,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>bin\Release\netstandard1.1\Wiry.Base32.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\Wiry.Base32.xml</DocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <NoWarn />
