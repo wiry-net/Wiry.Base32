@@ -17,6 +17,11 @@ namespace Wiry.Base32
         private const string ErrorMessageInvalidPadding = "Invalid padding";
         private const string ErrorMessageInvalidCharacter = "Invalid character";
 
+        /// <summary>
+        /// Base32 alphabet length.
+        /// </summary>
+        protected const int AlphabetLength = 32;
+
         private static volatile Base32Encoding _standard;
         private static volatile Base32Encoding _zBase32;
 
@@ -319,7 +324,7 @@ namespace Wiry.Base32
             if (alphabet == null)
                 throw new ArgumentNullException(nameof(alphabet));
 
-            if (alphabet.Length < 32)
+            if (alphabet.Length < AlphabetLength)
                 throw new ArgumentException("Alphabet length must be greater or equal than 32");
 
             if (count == 0)
