@@ -11,7 +11,7 @@ namespace Wiry.Base32
     /// <summary>
     /// Generic Base32 implementation
     /// </summary>
-    public abstract class Base32Encoding
+    public abstract class Base32Encoding : IBase32Encoding
     {
         private const string ErrorMessageInvalidLength = "Invalid length";
         private const string ErrorMessageInvalidPadding = "Invalid padding";
