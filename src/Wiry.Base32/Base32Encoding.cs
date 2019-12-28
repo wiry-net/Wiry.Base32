@@ -75,7 +75,10 @@ namespace Wiry.Base32
         /// <summary>
         /// When overridden in a derived class, decodes string data to bytes.
         /// </summary>
-        public abstract byte[] ToBytes(string encoded, int index, int length);
+        public virtual byte[] ToBytes(string encoded, int index, int length)
+        {
+            return ToBytes(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet));
+        }
 
         /// <summary>
         /// Validate input data.
