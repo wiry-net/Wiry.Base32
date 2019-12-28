@@ -1,4 +1,4 @@
-﻿// Copyright (c) Dmitry Razumikhin, 2016-2018.
+﻿// Copyright (c) Dmitry Razumikhin, 2016-2019.
 // Licensed under the MIT License.
 // See LICENSE in the project root for license information.
 
@@ -11,11 +11,16 @@ namespace Wiry.Base32
     /// <summary>
     /// Generic Base32 implementation
     /// </summary>
-    public abstract class Base32Encoding
+    public abstract class Base32Encoding : IBase32Encoding
     {
         private const string ErrorMessageInvalidLength = "Invalid length";
         private const string ErrorMessageInvalidPadding = "Invalid padding";
         private const string ErrorMessageInvalidCharacter = "Invalid character";
+
+        /// <summary>
+        /// Base32 alphabet length.
+        /// </summary>
+        protected const int AlphabetLength = 32;
 
         private static volatile Base32Encoding _standard;
         private static volatile Base32Encoding _zBase32;
@@ -33,6 +38,16 @@ namespace Wiry.Base32
         private volatile LookupTable _lookupTable;
 
         /// <summary>
+        /// Alphabet of a concrete Base32 encoding.
+        /// </summary>
+        protected abstract string Alphabet { get; }
+
+        /// <summary>
+        /// Padding symbol of a concrete Base32 encoding.
+        /// </summary>
+        protected abstract char? PadSymbol { get; }
+
+        /// <summary>
         /// Get encoded string
         /// </summary>
         public virtual string GetString(byte[] bytes)
@@ -46,7 +61,10 @@ namespace Wiry.Base32
         /// <summary>
         /// When overridden in a derived class, encodes bytes a string.
         /// </summary>
-        public abstract string GetString(byte[] bytes, int index, int count);
+        public virtual string GetString(byte[] bytes, int index, int count)
+        {
+            return ToBase32(bytes, index, count, Alphabet, PadSymbol);
+        }
 
         /// <summary>
         /// When overridden in a derived class, decodes string data to bytes.
@@ -62,7 +80,10 @@ namespace Wiry.Base32
         /// <summary>
         /// When overridden in a derived class, decodes string data to bytes.
         /// </summary>
-        public abstract byte[] ToBytes(string encoded, int index, int length);
+        public virtual byte[] ToBytes(string encoded, int index, int length)
+        {
+            return ToBytes(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet));
+        }
 
         /// <summary>
         /// Validate input data.
@@ -78,7 +99,10 @@ namespace Wiry.Base32
         /// <summary>
         /// Validate input data
         /// </summary>
-        public abstract ValidationResult Validate(string encoded, int index, int length);
+        public virtual ValidationResult Validate(string encoded, int index, int length)
+        {
+            return Validate(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet));
+        }
 
         internal LookupTable GetOrCreateLookupTable(string alphabet)
         {
@@ -101,12 +125,7 @@ namespace Wiry.Base32
 
         private static LookupTable BuildLookupTable(string alphabet)
         {
-            int[] codes = new int[alphabet.Length];
-            for (var i = 0; i < alphabet.Length; i++)
-            {
-                codes[i] = alphabet[i];
-            }
-
+            int[] codes = alphabet.Select(ch => (int)ch).ToArray();
             int min = codes.Min();
             int max = codes.Max();
             int size = max - min + 1;
@@ -305,7 +324,7 @@ namespace Wiry.Base32
             if (alphabet == null)
                 throw new ArgumentNullException(nameof(alphabet));
 
-            if (alphabet.Length < 32)
+            if (alphabet.Length < AlphabetLength)
                 throw new ArgumentException("Alphabet length must be greater or equal than 32");
 
             if (count == 0)
