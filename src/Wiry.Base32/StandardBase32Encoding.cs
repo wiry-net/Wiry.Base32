@@ -9,11 +9,6 @@ namespace Wiry.Base32
         protected override string Alphabet => "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
         protected override char? PadSymbol => '=';
 
-        public override string GetString(byte[] bytes, int index, int count)
-        {
-            return ToBase32(bytes, index, count, Alphabet, PadSymbol);
-        }
-
         public override byte[] ToBytes(string encoded, int index, int length)
         {
             return ToBytes(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet));

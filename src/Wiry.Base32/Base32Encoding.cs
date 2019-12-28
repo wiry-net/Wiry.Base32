@@ -56,7 +56,10 @@ namespace Wiry.Base32
         /// <summary>
         /// When overridden in a derived class, encodes bytes a string.
         /// </summary>
-        public abstract string GetString(byte[] bytes, int index, int count);
+        public virtual string GetString(byte[] bytes, int index, int count)
+        {
+            return ToBase32(bytes, index, count, Alphabet, PadSymbol);
+        }
 
         /// <summary>
         /// When overridden in a derived class, decodes string data to bytes.
