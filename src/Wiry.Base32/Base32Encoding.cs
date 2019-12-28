@@ -101,12 +101,7 @@ namespace Wiry.Base32
 
         private static LookupTable BuildLookupTable(string alphabet)
         {
-            int[] codes = new int[alphabet.Length];
-            for (var i = 0; i < alphabet.Length; i++)
-            {
-                codes[i] = alphabet[i];
-            }
-
+            int[] codes = alphabet.Select(ch => (int)ch).ToArray();
             int min = codes.Min();
             int max = codes.Max();
             int size = max - min + 1;
