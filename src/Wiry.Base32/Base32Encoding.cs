@@ -94,7 +94,10 @@ namespace Wiry.Base32
         /// <summary>
         /// Validate input data
         /// </summary>
-        public abstract ValidationResult Validate(string encoded, int index, int length);
+        public virtual ValidationResult Validate(string encoded, int index, int length)
+        {
+            return Validate(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet));
+        }
 
         internal LookupTable GetOrCreateLookupTable(string alphabet)
         {
