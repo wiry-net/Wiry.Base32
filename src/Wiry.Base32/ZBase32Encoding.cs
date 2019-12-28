@@ -6,7 +6,7 @@ namespace Wiry.Base32
 {
     internal sealed class ZBase32Encoding : Base32Encoding
     {
-        private string Alphabet => "ybndrfg8ejkmcpqxot1uwisza345h769";
+        protected override string Alphabet => "ybndrfg8ejkmcpqxot1uwisza345h769";
 
         public override string GetString(byte[] bytes, int index, int count)
         {

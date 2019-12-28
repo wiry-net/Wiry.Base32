@@ -33,6 +33,11 @@ namespace Wiry.Base32
         private volatile LookupTable _lookupTable;
 
         /// <summary>
+        /// Alphabet of a concrete Base32 encoding.
+        /// </summary>
+        protected abstract string Alphabet { get; }
+
+        /// <summary>
         /// Get encoded string
         /// </summary>
         public virtual string GetString(byte[] bytes)
