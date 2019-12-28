@@ -7,20 +7,21 @@ namespace Wiry.Base32
     internal sealed class StandardBase32Encoding : Base32Encoding
     {
         protected override string Alphabet => "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        private char? PadSymbol => '=';
 
         public override string GetString(byte[] bytes, int index, int count)
         {
-            return ToBase32(bytes, index, count, Alphabet, '=');
+            return ToBase32(bytes, index, count, Alphabet, PadSymbol);
         }
 
         public override byte[] ToBytes(string encoded, int index, int length)
         {
-            return ToBytes(encoded, index, length, '=', GetOrCreateLookupTable(Alphabet));
+            return ToBytes(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet));
         }
 
         public override ValidationResult Validate(string encoded, int index, int length)
         {
-            return Validate(encoded, index, length, '=', GetOrCreateLookupTable(Alphabet));
+            return Validate(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet));
         }
     }
 }
