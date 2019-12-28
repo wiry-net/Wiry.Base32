@@ -38,6 +38,11 @@ namespace Wiry.Base32
         protected abstract string Alphabet { get; }
 
         /// <summary>
+        /// Padding symbol of a concrete Base32 encoding.
+        /// </summary>
+        protected abstract char? PadSymbol { get; }
+
+        /// <summary>
         /// Get encoded string
         /// </summary>
         public virtual string GetString(byte[] bytes)
