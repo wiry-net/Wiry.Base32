@@ -13,6 +13,27 @@ namespace Wiry.Base32
     /// </summary>
     public abstract class Base32Encoding : IBase32Encoding
     {
+        /// <summary>
+        /// Reverse alphabet lookup table
+        /// </summary>
+        protected sealed class LookupTable
+        {
+            /// <summary>
+            /// Low code
+            /// </summary>
+            public int LowCode { get; }
+            /// <summary>
+            /// Values
+            /// </summary>
+            public int[] Values { get; }
+
+            internal LookupTable(int lowCode, int[] values)
+            {
+                LowCode = lowCode;
+                Values = values;
+            }
+        }
+
         private const string ErrorMessageInvalidLength = "Invalid length";
         private const string ErrorMessageInvalidPadding = "Invalid padding";
         private const string ErrorMessageInvalidCharacter = "Invalid character";
@@ -82,7 +103,7 @@ namespace Wiry.Base32
         /// </summary>
         public virtual byte[] ToBytes(string encoded, int index, int length)
         {
-            return ToBytes(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet));
+            return ToBytes(encoded, index, length, PadSymbol, GetOrCreateLookupTable());
         }
 
         /// <summary>
@@ -101,12 +122,15 @@ namespace Wiry.Base32
         /// </summary>
         public virtual ValidationResult Validate(string encoded, int index, int length)
         {
-            return Validate(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet));
+            return Validate(encoded, index, length, PadSymbol, GetOrCreateLookupTable());
         }
 
-        internal LookupTable GetOrCreateLookupTable(string alphabet)
+        /// <summary>
+        /// Return lookup table after building if needed
+        /// </summary>
+        protected LookupTable GetOrCreateLookupTable()
         {
-            return _lookupTable ?? (_lookupTable = BuildLookupTable(alphabet));
+            return _lookupTable ?? (_lookupTable = BuildLookupTable(Alphabet));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -140,7 +164,10 @@ namespace Wiry.Base32
             return new LookupTable(min, table);
         }
 
-        private static unsafe void ToBase32GroupsUnsafe(byte* pInput, char* pOutput, char* pAlphabet,
+        /// <summary>
+        /// Core algorithm for encoding full groups
+        /// </summary>
+        protected static unsafe void ToBase32GroupsUnsafe(byte* pInput, char* pOutput, char* pAlphabet,
             int inputGroupsCount)
         {
             for (int i = 0; i < inputGroupsCount; i++)
@@ -165,7 +192,10 @@ namespace Wiry.Base32
             }
         }
 
-        private static unsafe int ToBase32RemainderUnsafe(byte* pInput, char* pOutput, char* pAlphabet, int remainder)
+        /// <summary>
+        /// Core algorithm for encoding remainder after groups
+        /// </summary>
+        protected static unsafe int ToBase32RemainderUnsafe(byte* pInput, char* pOutput, char* pAlphabet, int remainder)
         {
             ulong value = *pInput++;
             for (int j = 1; j < remainder; j++)
@@ -217,7 +247,10 @@ namespace Wiry.Base32
             }
         }
 
-        private static unsafe void ToBytesGroupsUnsafe(char* pEncoded, byte* pOutput, int encodedGroupsCount,
+        /// <summary>
+        /// Core algorithm for decoding full groups
+        /// </summary>
+        protected static unsafe void ToBytesGroupsUnsafe(char* pEncoded, byte* pOutput, int encodedGroupsCount,
             int* pLookup, int lookupSize, int lowCode)
         {
             ulong value = 0;
@@ -251,7 +284,10 @@ namespace Wiry.Base32
             }
         }
 
-        private static unsafe void ToBytesRemainderUnsafe(char* pEncoded, byte* pOutput, int remainder,
+        /// <summary>
+        /// Core algorithm for decoding remainder after groups
+        /// </summary>
+        protected static unsafe void ToBytesRemainderUnsafe(char* pEncoded, byte* pOutput, int remainder,
             int* pLookup, int lookupSize, int lowCode)
         {
             ulong value = 0;
@@ -385,7 +421,7 @@ namespace Wiry.Base32
             return remainder;
         }
 
-        internal static byte[] ToBytes(string encoded, int index, int length, char? padSymbol, LookupTable lookupTable)
+        private static byte[] ToBytes(string encoded, int index, int length, char? padSymbol, LookupTable lookupTable)
         {
             CheckToBytesArguments(encoded, index, length, lookupTable);
 
@@ -419,7 +455,7 @@ namespace Wiry.Base32
             return bytes;
         }
 
-        internal static ValidationResult Validate(string encoded, int index, int length, char? padSymbol,
+        private static ValidationResult Validate(string encoded, int index, int length, char? padSymbol,
             LookupTable lookupTable)
         {
             try
