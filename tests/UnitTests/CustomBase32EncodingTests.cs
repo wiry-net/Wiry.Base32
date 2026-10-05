@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 // See LICENSE in the project root for license information.
 
+using System;
 using System.Text;
 using Wiry.Base32;
 using Xunit;
@@ -30,6 +31,31 @@ namespace UnitTests
 
             var roundTripText = Encoding.ASCII.GetString(russianBase32Encoding.ToBytes(russianEncoded));
             Assert.Equal(text, roundTripText);
+        }
+
+        [Fact]
+        public void RepeatedAlphabetSymbolIsRejected()
+        {
+            var ex = Assert.Throws<ArgumentException>(
+                () => new CustomBase32Encoding("ABCDEFGHIJKLMNOPQRSTUVWXYZ23456A", '='));
+            Assert.Equal("alphabet", ex.ParamName);
+        }
+
+        [Fact]
+        public void PadSymbolInsideAlphabetIsRejected()
+        {
+            var ex = Assert.Throws<ArgumentException>(
+                () => new CustomBase32Encoding("ABCDEFGHIJKLMNOPQRSTUVWXYZ23456=", '='));
+            Assert.Equal("padSymbol", ex.ParamName);
+        }
+
+        [Fact]
+        public void AlphabetMayContainPadCharacterWhenUnpadded()
+        {
+            var encoding = new CustomBase32Encoding("ABCDEFGHIJKLMNOPQRSTUVWXYZ23456=", null);
+            var bytes = new byte[] { 0xff, 0xff, 0xff, 0xff, 0xff };
+            Assert.Equal("========", encoding.GetString(bytes));
+            Assert.Equal(bytes, encoding.ToBytes("========"));
         }
 
         private static string ReplaceWithRfc4648(string russian)

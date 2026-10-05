@@ -39,6 +39,24 @@ namespace Wiry.Base32
                 );
             }
 
+            for (int i = 0; i < alphabet.Length; i++)
+            {
+                if (alphabet[i] == padSymbol)
+                {
+                    throw new ArgumentException(
+                        $"The padding symbol must not be in the alphabet, but it is at index {i}.",
+                        nameof(padSymbol));
+                }
+
+                int repeat = alphabet.IndexOf(alphabet[i], i + 1);
+                if (repeat >= 0)
+                {
+                    throw new ArgumentException(
+                        $"Alphabet symbols must be unique, but index {i} is repeated at index {repeat}.",
+                        nameof(alphabet));
+                }
+            }
+
             Alphabet = alphabet;
             PadSymbol = padSymbol;
         }
