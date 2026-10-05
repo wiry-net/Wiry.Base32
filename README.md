@@ -9,8 +9,8 @@ AppVeyor (Windows): [![AppVeyor](https://ci.appveyor.com/api/projects/status/o4v
 Travis CI (Linux & macOS): [![Travis CI](https://travis-ci.org/wiry-net/Wiry.Base32.svg?branch=master)](https://travis-ci.org/wiry-net/Wiry.Base32)
 
 ### .NET compatibility:
-- .NET Framework (4.5+)
-- .NET Core (netstandard 1.1+)
+- .NET Framework 4.5+
+- .NET Standard 1.1+ (.NET Core, .NET 5 and later, Mono, Xamarin)
 
 ### Installation
 
@@ -105,6 +105,46 @@ Z2) Ok
 Z3) InvalidLength
 Z4) InvalidCharacter
 ```
+### Custom alphabets
+
+`CustomBase32Encoding` uses the bit layout of RFC 4648 with any alphabet of 32 distinct
+characters. The padding symbol must not be one of them; pass `null` for no padding, as z-base-32
+does. The constructor throws `ArgumentException` otherwise.
+
+For example, base32hex from RFC 4648 section 7:
+```csharp
+var base32Hex = new CustomBase32Encoding("0123456789ABCDEFGHIJKLMNOPQRSTUV", '=');
+
+string encoded = base32Hex.GetString(Encoding.ASCII.GetBytes("foobar"));
+Console.WriteLine(encoded);                                               // CPNMUOJ1E8======
+Console.WriteLine(Encoding.ASCII.GetString(base32Hex.ToBytes(encoded)));  // foobar
+```
+Encodings that are more than an alphabet substitution, such as Crockford's Base32 (case folding,
+aliases like `I` and `L` for `1`, a check symbol), cannot be expressed this way.
+
+### Known decoder leniency
+
+`ToBytes` accepts some input that RFC 4648 rejects, and `Validate` returns `Ok` for part of it.
+1.x keeps this behavior so that input accepted today is still accepted:
+
+- The number of padding symbols is not checked: `MZX=====` decodes to `66` like `MY======`, and
+  `M=======` decodes to an empty array; `Validate` returns `Ok` for both. A single symbol before seven
+  padding symbols is not decoded at all: `!=======` gives an empty array, while `Validate` returns
+  `InvalidCharacter`.
+- Without padding (z-base-32, custom alphabets with `null` padding) a single trailing symbol is
+  ignored without being checked, and the bits of an incomplete trailing group are dropped at lengths
+  3 and 6 modulo 8: `ZBase32.ToBytes("=")` is an empty array, `ZBase32.ToBytes("yyy")` is `00`.
+  `Validate` returns `InvalidLength` for these.
+- Unused trailing bits need not be zero, so different strings decode to the same bytes: `MY======`
+  and `MZ======` both give `66`, z-base-32 `r3oi` and `r3oo` both give `26 61`. `Validate` returns
+  `Ok` for all of them.
+
+To accept canonical input only, compare the input with the encoding of the decoded bytes:
+```csharp
+byte[] bytes = Base32Encoding.Standard.ToBytes(text);
+bool canonical = Base32Encoding.Standard.GetString(bytes) == text;
+```
+
 ### Benchmarks
 
 [Benchmark repository](https://github.com/dmitry-ra/benchmarks/tree/master/comparative/Base32Encoding)
