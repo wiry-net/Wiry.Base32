@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard1.1;netstandard2.0;net45</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>Wiry.Base32</PackageId>
-    <Version>1.1.20-dev</Version>
+    <Version>1.2.0-preview.1</Version>
     <Authors>Dmitry Razumikhin</Authors>
     <Company>Dmitry Razumikhin</Company>
     <Description>Base32 and ZBase32 encoding library</Description>
@@ -13,9 +13,18 @@
     <PackageProjectUrl>https://github.com/wiry-net/Wiry.Base32</PackageProjectUrl>
     <PackageTags>base32;rfc4648;zbase32;z-base-32;coreclr;core clr;netcore;netstandard;cross-platform</PackageTags>
     <AssemblyVersion>1.1.1.0</AssemblyVersion>
-    <FileVersion>1.1.1.0</FileVersion>
+    <FileVersion>1.2.0.0</FileVersion>
     <EnablePackageValidation>true</EnablePackageValidation>
     <PackageValidationBaselineVersion>1.1.1</PackageValidationBaselineVersion>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <Deterministic>true</Deterministic>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -34,5 +43,9 @@
     <WarningsAsErrors />
     <NoWarn />
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
 
 </Project>
