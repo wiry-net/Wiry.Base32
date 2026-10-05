@@ -20,8 +20,8 @@ curl -fsSL --retry 3 -o "$work/baseline.nupkg" "$baseline_url"
 echo "$baseline_sha256  $work/baseline.nupkg" | sha256sum -c -
 
 rm -rf "$work/baseline" "$work/candidate"
-unzip -q "$work/baseline.nupkg" 'lib/*' -d "$work/baseline"
-unzip -q "$candidate" 'lib/*' -d "$work/candidate"
+unzip -q "$work/baseline.nupkg" -d "$work/baseline"
+unzip -q "$candidate" -d "$work/candidate"
 
 dotnet build "$here/wiry_base32_probe/wiry_base32_probe.csproj" -c Release -o "$work/probe" -nologo -v quiet
 
