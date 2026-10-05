@@ -243,3 +243,5 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+# Python bytecode of the harness scripts
+__pycache__/
