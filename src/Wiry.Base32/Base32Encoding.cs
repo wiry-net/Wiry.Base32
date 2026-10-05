@@ -123,17 +123,28 @@ public abstract class Base32Encoding : IBase32Encoding
 
     private static LookupTable BuildLookupTable(string alphabet)
     {
-        var codes = alphabet.Select(ch => (int)ch).ToArray();
-        var min = codes.Min();
-        var max = codes.Max();
-        var size = max - min + 1;
-        var table = new int[size];
+        int min = alphabet[0];
+        int max = alphabet[0];
+        for (var i = 1; i < alphabet.Length; i++)
+        {
+            if (alphabet[i] < min)
+                min = alphabet[i];
+
+            if (alphabet[i] > max)
+                max = alphabet[i];
+        }
+
+        var table = new int[max - min + 1];
 
         for (var i = 0; i < table.Length; i++)
             table[i] = LookupTableNullItem;
 
-        foreach (var code in codes)
-            table[code - min] = alphabet.IndexOf((char)code);
+        // First occurrence wins, as IndexOf did.
+        for (var i = 0; i < alphabet.Length; i++)
+        {
+            if (table[alphabet[i] - min] == LookupTableNullItem)
+                table[alphabet[i] - min] = i;
+        }
 
         return new LookupTable(min, table);
     }
