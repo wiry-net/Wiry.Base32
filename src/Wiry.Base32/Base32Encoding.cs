@@ -26,11 +26,13 @@ public abstract class Base32Encoding : IBase32Encoding
     /// <summary>
     /// Represent standard encoding defined in RFC 4648
     /// </summary>
+    // analysis-kept: racing first calls may each build an instance; they are interchangeable.
     public static Base32Encoding Standard => _standard ??= new StandardBase32Encoding();
 
     /// <summary>
     /// Represent z-base-32 encoding by Zooko O'Whielacronx
     /// </summary>
+    // analysis-kept: racing first calls may each build an instance; they are interchangeable.
     public static Base32Encoding ZBase32 => _zBase32 ??= new ZBase32Encoding();
 
     private volatile LookupTable? _lookupTable;
@@ -104,6 +106,7 @@ public abstract class Base32Encoding : IBase32Encoding
 
     internal LookupTable GetOrCreateLookupTable(string alphabet)
     {
+        // analysis-kept: racing first calls may each build a table; the tables are equal.
         return _lookupTable ??= BuildLookupTable(alphabet);
     }
 
@@ -388,7 +391,11 @@ public abstract class Base32Encoding : IBase32Encoding
         CheckToBytesArguments(encoded, index, length, lookupTable);
 
         if (length == 0)
+        {
+            // analysis-kept: a fresh array per call, as every release has returned; Array.Empty
+            // would hand out one shared instance, and net45 has none.
             return new byte[0];
+        }
 
         var remainder = GetRemainderWithChecks(encoded, index, length, padSymbol);
 
