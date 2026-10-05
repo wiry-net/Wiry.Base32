@@ -11,7 +11,7 @@ namespace Wiry.Base32
     /// <summary>
     /// Generic Base32 implementation
     /// </summary>
-    public abstract class Base32Encoding : IBase32Encoding
+    public abstract partial class Base32Encoding : IBase32Encoding
     {
         private const string ErrorMessageInvalidLength = "Invalid length";
         private const string ErrorMessageInvalidPadding = "Invalid padding";
@@ -194,6 +194,14 @@ namespace Wiry.Base32
         {
             fixed (byte* pInput = &input[inputOffset])
             fixed (char* pOutput = &output[outputOffset])
+            {
+                ToBase32Unsafe(pInput, pOutput, inputGroupsCount, remainder, alphabet, padSymbol);
+            }
+        }
+
+        private static unsafe void ToBase32Unsafe(byte* pInput, char* pOutput, int inputGroupsCount, int remainder,
+            string alphabet, char? padSymbol)
+        {
             fixed (char* pAlphabet = alphabet)
             {
                 if (inputGroupsCount > 0)
@@ -284,16 +292,13 @@ namespace Wiry.Base32
             *pOutput = (byte)value;
         }
 
-        private static unsafe void ToBytesUnsafe(string encoded, int index, byte[] output, int outputOffset,
-            int encodedGroupsCount, int remainder, LookupTable lookupTable)
+        private static unsafe void ToBytesUnsafe(char* pEncoded, byte* pOutput, int encodedGroupsCount, int remainder,
+            LookupTable lookupTable)
         {
             int[] lookupValues = lookupTable.Values;
             int lowCode = lookupTable.LowCode;
-            fixed (char* pEncodedBegin = encoded)
-            fixed (byte* pOutput = &output[outputOffset])
             fixed (int* pLookup = lookupValues)
             {
-                char* pEncoded = pEncodedBegin + index;
                 if (encodedGroupsCount > 0)
                 {
                     ToBytesGroupsUnsafe(pEncoded, pOutput, encodedGroupsCount, pLookup,
@@ -363,7 +368,7 @@ namespace Wiry.Base32
                 throw new ArgumentNullException(nameof(lookupTable));
         }
 
-        private static int GetRemainderWithChecks(string encoded, int index, int length, char? padSymbol)
+        private static unsafe int GetRemainderWithChecks(char* pEncoded, int length, char? padSymbol)
         {
             if (padSymbol == null)
                 return length % 8;
@@ -373,9 +378,9 @@ namespace Wiry.Base32
 
             int remainder = 8;
             char padChar = padSymbol.Value;
-            for (int i = index + length - 1; i >= index; i--)
+            for (int i = length - 1; i >= 0; i--)
             {
-                if (encoded[i] != padChar)
+                if (pEncoded[i] != padChar)
                     break;
 
                 if (--remainder <= 0)
@@ -385,16 +390,39 @@ namespace Wiry.Base32
             return remainder;
         }
 
-        internal static byte[] ToBytes(string encoded, int index, int length, char? padSymbol, LookupTable lookupTable)
+        internal static unsafe byte[] ToBytes(string encoded, int index, int length, char? padSymbol,
+            LookupTable lookupTable)
         {
             CheckToBytesArguments(encoded, index, length, lookupTable);
 
             if (length == 0)
                 return new byte[0];
 
-            int remainder = GetRemainderWithChecks(encoded, index, length, padSymbol);
+            fixed (char* pEncodedBegin = encoded)
+            {
+                char* pEncoded = pEncodedBegin + index;
+                int bytesCount = GetBytesCountWithChecks(pEncoded, length, padSymbol, out int groupsCount,
+                    out int remainder);
 
-            int groupsCount = length / 8;
+                var bytes = new byte[bytesCount];
+                if (bytesCount > 0)
+                {
+                    fixed (byte* pOutput = bytes)
+                    {
+                        ToBytesUnsafe(pEncoded, pOutput, groupsCount, remainder, lookupTable);
+                    }
+                }
+
+                return bytes;
+            }
+        }
+
+        private static unsafe int GetBytesCountWithChecks(char* pEncoded, int length, char? padSymbol,
+            out int groupsCount, out int remainder)
+        {
+            remainder = GetRemainderWithChecks(pEncoded, length, padSymbol);
+
+            groupsCount = length / 8;
 
             int bytesCount = 0;
             if (remainder > 0)
@@ -408,58 +436,20 @@ namespace Wiry.Base32
                 bytesCount = GetBytesCount(remainder);
             }
 
-            bytesCount += groupsCount * 5;
-
-            var bytes = new byte[bytesCount];
-            if (bytesCount > 0)
-            {
-                ToBytesUnsafe(encoded, index, bytes, 0, groupsCount, remainder, lookupTable);
-            }
-
-            return bytes;
+            return bytesCount + groupsCount * 5;
         }
 
-        internal static ValidationResult Validate(string encoded, int index, int length, char? padSymbol,
+        internal static unsafe ValidationResult Validate(string encoded, int index, int length, char? padSymbol,
             LookupTable lookupTable)
         {
             try
             {
                 CheckToBytesArguments(encoded, index, length, lookupTable);
 
-                int bytesCount = GetBytesCount(length);
-                int symbolsCount = GetSymbolsCount(bytesCount);
-                if (symbolsCount != length)
-                    return ValidationResult.InvalidLength;
-
-                int remainder;
-                try
+                fixed (char* pEncodedBegin = encoded)
                 {
-                    remainder = GetRemainderWithChecks(encoded, index, length, padSymbol);
+                    return ValidateUnsafe(pEncodedBegin + index, length, padSymbol, lookupTable);
                 }
-                catch (FormatException fex)
-                {
-                    switch (fex.Message)
-                    {
-                        case ErrorMessageInvalidLength:
-                            return ValidationResult.InvalidLength;
-
-                        case ErrorMessageInvalidPadding:
-                            return ValidationResult.InvalidPadding;
-
-                        default:
-                            throw;
-                    }
-                }
-
-                if (padSymbol != null)
-                {
-                    length -= 8 - remainder; // ignore padding
-                }
-
-                if (!CheckAlphabet(encoded, index, length, lookupTable))
-                    return ValidationResult.InvalidCharacter;
-
-                return ValidationResult.Ok;
             }
             catch
             {
@@ -467,15 +457,52 @@ namespace Wiry.Base32
             }
         }
 
-        private static unsafe bool CheckAlphabet(string encoded, int index, int length, LookupTable lookupTable)
+        private static unsafe ValidationResult ValidateUnsafe(char* pEncoded, int length, char? padSymbol,
+            LookupTable lookupTable)
+        {
+            int bytesCount = GetBytesCount(length);
+            int symbolsCount = GetSymbolsCount(bytesCount);
+            if (symbolsCount != length)
+                return ValidationResult.InvalidLength;
+
+            int remainder;
+            try
+            {
+                remainder = GetRemainderWithChecks(pEncoded, length, padSymbol);
+            }
+            catch (FormatException fex)
+            {
+                switch (fex.Message)
+                {
+                    case ErrorMessageInvalidLength:
+                        return ValidationResult.InvalidLength;
+
+                    case ErrorMessageInvalidPadding:
+                        return ValidationResult.InvalidPadding;
+
+                    default:
+                        throw;
+                }
+            }
+
+            if (padSymbol != null)
+            {
+                length -= 8 - remainder; // ignore padding
+            }
+
+            if (!CheckAlphabet(pEncoded, length, lookupTable))
+                return ValidationResult.InvalidCharacter;
+
+            return ValidationResult.Ok;
+        }
+
+        private static unsafe bool CheckAlphabet(char* pEncoded, int length, LookupTable lookupTable)
         {
             int[] lookupValues = lookupTable.Values;
             int lowCode = lookupTable.LowCode;
             int lookupSize = lookupValues.Length;
-            fixed (char* pEncodedBegin = encoded)
             fixed (int* pLookup = lookupValues)
             {
-                char* pEncoded = pEncodedBegin + index;
                 char* pEnd = pEncoded + length;
                 while (pEncoded < pEnd)
                 {
