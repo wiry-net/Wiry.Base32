@@ -11,7 +11,9 @@ namespace UnitTests
     public class CustomBase32EncodingTests
     {
         private const string Rfc4648Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-        private const string RussianAlphabet = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+        // U+0410..U+042F, the Cyrillic capitals from A to YA.
+        private const string RussianAlphabet =
+            "\u0410\u0411\u0412\u0413\u0414\u0415\u0416\u0417\u0418\u0419\u041a\u041b\u041c\u041d\u041e\u041f\u0420\u0421\u0422\u0423\u0424\u0425\u0426\u0427\u0428\u0429\u042a\u042b\u042c\u042d\u042e\u042f";
 
         [Fact]
         public void CustomEncodingTest()
