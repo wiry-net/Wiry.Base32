@@ -3,10 +3,11 @@
 
     wiry_base32_check.py --probe PROBE.dll --work DIR \\
         --build 1.1.1-ns11=lib/netstandard1.1/Wiry.Base32.dll \\
-        --build master-ns20=bin/Release/netstandard2.0/Wiry.Base32.dll [--scale N] [--seed N]
+        --build candidate-ns20=lib/netstandard2.0/Wiry.Base32.dll [--scale N] [--seed N]
 
-One deterministic case file is generated and every build runs it through
-scripts/wiry_base32_probe. Four questions are answered from the results:
+run.sh next to this file does the whole gate for a package. One deterministic
+case file is generated and every build runs it through wiry_base32_probe/.
+Five questions are answered from the results:
 
   oracle    does each build agree with base64.b32encode/b32decode (RFC 4648),
             with z-base-32 derived from it by alphabet substitution, and with
@@ -14,13 +15,14 @@ scripts/wiry_base32_probe. Four questions are answered from the results:
             accepts, the leniency is counted by Python's reason
   window    does a decode or validate of a window depend on characters outside
             it (an out-of-bounds read would show up as a difference)
-  parity    does every build answer every case exactly as the first build does
+  parity    does every pair of builds answer every case identically
   fuzz      did any call throw something other than the argument and format
             exceptions, or did the probe process die
+  alphabet  does CustomBase32Encoding refuse an alphabet with a repeated symbol
+            or with the padding symbol inside it
 
 Custom-alphabet cases run only on builds that have CustomBase32Encoding; the
 others answer NoSuchCodec and are excluded from parity for those cases.
-Parity is checked for every pair of builds.
 """
 
 import argparse
@@ -40,7 +42,8 @@ WIDE = chr(0x0000) + RFC[1:31] + chr(0xFFFF)
 DUPLICATE = RFC[:31] + "A"
 PAD_INSIDE = RFC[:31] + "="
 
-# name -> (alphabet, pad or None, has a Python oracle)
+# name -> (alphabet, pad or None, valid). Valid ones are checked against Python, invalid ones
+# must be refused by the constructor.
 CUSTOM = {
     "rfc": (RFC, "=", True),
     "zb32": (ZB32, None, True),
@@ -53,6 +56,10 @@ CUSTOM = {
 
 ALLOWED = {"System.ArgumentException", "System.ArgumentNullException",
            "System.ArgumentOutOfRangeException", "System.FormatException"}
+
+# The probe answers NoSuchCodec when the build has no CustomBase32Encoding and
+# Rejected:<exception> when the constructor throws.
+REFUSED = {"NoSuchCodec", "Rejected:System.ArgumentException"}
 
 
 def utf16(text):
@@ -293,22 +300,14 @@ def check_windows(cases, results):
     return len(cases.pairs), differing
 
 
-def check_roundtrip(cases, results):
-    """For codecs without an oracle: is encode the plain substitution, and does decode undo it."""
-    tally = collections.Counter()
+def check_alphabets(cases, results):
+    """Invalid alphabets: how each build answered, by verdict."""
+    verdicts = collections.Counter()
     for case_id, meta in enumerate(cases.meta):
-        if has_oracle(meta["codec"]) or meta.get("data") is None or meta["op"] == "val":
-            continue
-        status, value = results[case_id]
-        if value == "NoSuchCodec":
-            continue
-        if meta["op"] == "enc":
-            same = status == "ok" and from_utf16(value) == oracle_encode(meta["codec"], meta["data"])
-            tally[(meta["codec"], "encode " + ("is" if same else "is NOT") + " the substitution")] += 1
-        else:
-            same = status == "ok" and bytes.fromhex(value) == meta["data"]
-            tally[(meta["codec"], "decode " + ("restores" if same else "does NOT restore") + " the input")] += 1
-    return tally
+        if not has_oracle(meta["codec"]):
+            value = results[case_id][1]
+            verdicts[(meta["codec"], value if value in REFUSED else "ACCEPTED")] += 1
+    return verdicts
 
 
 def main():
@@ -347,7 +346,8 @@ def main():
         everything[name] = results
 
         foreign = collections.Counter(value for status, value in results.values()
-                                      if status == "ex" and value not in ALLOWED and value != "NoSuchCodec")
+                                      if status == "ex" and value not in ALLOWED
+                                      and value != "NoSuchCodec" and value.removeprefix("Rejected:") not in ALLOWED)
         print(f"fuzz: exceptions outside the argument/format family: {dict(foreign) or 'none'}")
         failed |= bool(foreign)
 
@@ -364,8 +364,9 @@ def main():
               + (f", e.g. {differing[:3]}" if differing else ""))
         failed |= bool(differing)
 
-        for key, count in sorted(check_roundtrip(cases, results).items()):
-            print(f"  roundtrip-less codec {key[0]}: {count} {key[1]}")
+        for (codec, verdict), count in sorted(check_alphabets(cases, results).items()):
+            print(f"alphabet {codec}: {count} cases, {verdict}")
+            failed |= verdict == "ACCEPTED"
 
     # Every pair, not only against the first build: cases a build cannot run (custom alphabets
     # on 1.1.1) would otherwise never be compared between the builds that can.

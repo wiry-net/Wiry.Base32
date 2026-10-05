@@ -11,6 +11,7 @@
 //   payload  enc: bytes as hex; dec/val: UTF-16 code units, four hex digits each; "null" for null
 //   index    "-" selects the one-argument overload
 // Result line: id <TAB> ok|ex <TAB> value (hex as above, enum name, or exception type)
+// A codec the build lacks answers NoSuchCodec; one its constructor refuses, Rejected:<exception type>.
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -109,17 +110,18 @@ static class Runner
             ["z"] = Codec.Bind(baseType.GetProperty("ZBase32")!.GetValue(null)!),
         };
         var custom = assembly.GetType("Wiry.Base32.CustomBase32Encoding");
+        var rejected = new Dictionary<string, string>();
 
         using var output = new StreamWriter(outputPath, append: false, new UTF8Encoding(false), 1 << 20);
         output.NewLine = "\n";
         foreach (var line in File.ReadLines(casesPath))
         {
             var f = line.Split('\t');
-            var codec = Resolve(codecs, custom, f[2]);
+            var codec = Resolve(codecs, rejected, custom, f[2]);
             string result;
             if (codec == null)
             {
-                result = "ex\tNoSuchCodec";
+                result = rejected.TryGetValue(f[2], out var reason) ? "ex\tRejected:" + reason : "ex\tNoSuchCodec";
             }
             else
             {
@@ -139,11 +141,11 @@ static class Runner
         return 0;
     }
 
-    static Codec? Resolve(Dictionary<string, Codec> codecs, Type? custom, string key)
+    static Codec? Resolve(Dictionary<string, Codec> codecs, Dictionary<string, string> rejected, Type? custom, string key)
     {
         if (codecs.TryGetValue(key, out var known))
             return known;
-        if (custom == null || !key.StartsWith("c:", StringComparison.Ordinal))
+        if (custom == null || rejected.ContainsKey(key) || !key.StartsWith("c:", StringComparison.Ordinal))
             return null;
         var parts = key.Split(':');
         var alphabet = Probe.FromUtf16Hex(parts[1]);
@@ -153,8 +155,9 @@ static class Runner
         {
             instance = Activator.CreateInstance(custom, alphabet, pad)!;
         }
-        catch (TargetInvocationException)
+        catch (TargetInvocationException e)
         {
+            rejected[key] = e.InnerException!.GetType().FullName!;
             return null;
         }
         return codecs[key] = Codec.Bind(instance);
