@@ -52,10 +52,9 @@ public abstract class Base32Encoding : IBase32Encoding
     /// </summary>
     public virtual string GetString(byte[] bytes)
     {
-        if (bytes == null)
-            throw new ArgumentNullException(nameof(bytes));
-
-        return GetString(bytes, 0, bytes.Length);
+        return bytes == null
+            ? throw new ArgumentNullException(nameof(bytes))
+            : GetString(bytes, 0, bytes.Length);
     }
 
     /// <summary>
@@ -71,10 +70,9 @@ public abstract class Base32Encoding : IBase32Encoding
     /// </summary>
     public virtual byte[] ToBytes(string encoded)
     {
-        if (encoded == null)
-            throw new ArgumentNullException(nameof(encoded));
-
-        return ToBytes(encoded, 0, encoded.Length);
+        return encoded == null
+            ? throw new ArgumentNullException(nameof(encoded))
+            : ToBytes(encoded, 0, encoded.Length);
     }
 
     /// <summary>
@@ -90,10 +88,9 @@ public abstract class Base32Encoding : IBase32Encoding
     /// </summary>
     public virtual ValidationResult Validate(string? encoded)
     {
-        if (encoded == null)
-            return ValidationResult.InvalidArguments;
-
-        return Validate(encoded, 0, encoded.Length);
+        return encoded == null
+            ? ValidationResult.InvalidArguments
+            : Validate(encoded, 0, encoded.Length);
     }
 
     /// <summary>
@@ -104,7 +101,7 @@ public abstract class Base32Encoding : IBase32Encoding
         return Validate(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet));
     }
 
-    internal LookupTable GetOrCreateLookupTable(string alphabet)
+    private LookupTable GetOrCreateLookupTable(string alphabet)
     {
         // analysis-kept: racing first calls may each build a table; the tables are equal.
         return _lookupTable ??= BuildLookupTable(alphabet);
@@ -311,7 +308,7 @@ public abstract class Base32Encoding : IBase32Encoding
         }
     }
 
-    internal static string ToBase32(byte[] bytes, int index, int count, string alphabet, char? padSymbol)
+    private static string ToBase32(byte[] bytes, int index, int count, string alphabet, char? padSymbol)
     {
         if (bytes == null)
             throw new ArgumentNullException(nameof(bytes));
@@ -386,7 +383,7 @@ public abstract class Base32Encoding : IBase32Encoding
         return remainder;
     }
 
-    internal static byte[] ToBytes(string encoded, int index, int length, char? padSymbol, LookupTable lookupTable)
+    private static byte[] ToBytes(string encoded, int index, int length, char? padSymbol, LookupTable lookupTable)
     {
         CheckToBytesArguments(encoded, index, length, lookupTable);
 
@@ -424,7 +421,7 @@ public abstract class Base32Encoding : IBase32Encoding
         return bytes;
     }
 
-    internal static ValidationResult Validate(string? encoded, int index, int length, char? padSymbol,
+    private static ValidationResult Validate(string? encoded, int index, int length, char? padSymbol,
         LookupTable lookupTable)
     {
         try
@@ -464,10 +461,9 @@ public abstract class Base32Encoding : IBase32Encoding
                 length -= 8 - remainder; // ignore padding
             }
 
-            if (!CheckAlphabet(encoded, index, length, lookupTable))
-                return ValidationResult.InvalidCharacter;
-
-            return ValidationResult.Ok;
+            return CheckAlphabet(encoded, index, length, lookupTable)
+                ? ValidationResult.Ok
+                : ValidationResult.InvalidCharacter;
         }
         catch
         {

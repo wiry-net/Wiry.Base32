@@ -4,14 +4,8 @@
 
 namespace Wiry.Base32;
 
-internal sealed class LookupTable
+internal sealed class LookupTable(int lowCode, int[] values)
 {
-    public int LowCode { get; }
-    public int[] Values { get; }
-
-    public LookupTable(int lowCode, int[] values)
-    {
-        LowCode = lowCode;
-        Values = values;
-    }
+    public int LowCode { get; } = lowCode;
+    public int[] Values { get; } = values;
 }
