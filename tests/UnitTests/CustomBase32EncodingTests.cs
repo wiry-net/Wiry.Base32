@@ -34,6 +34,31 @@ public class CustomBase32EncodingTests
         Assert.Equal(text, roundTripText);
     }
 
+    [Fact]
+    public void RepeatedAlphabetSymbolIsRejected()
+    {
+        var ex = Assert.Throws<ArgumentException>(
+            () => new CustomBase32Encoding("ABCDEFGHIJKLMNOPQRSTUVWXYZ23456A", '='));
+        Assert.Equal("alphabet", ex.ParamName);
+    }
+
+    [Fact]
+    public void PadSymbolInsideAlphabetIsRejected()
+    {
+        var ex = Assert.Throws<ArgumentException>(
+            () => new CustomBase32Encoding("ABCDEFGHIJKLMNOPQRSTUVWXYZ23456=", '='));
+        Assert.Equal("padSymbol", ex.ParamName);
+    }
+
+    [Fact]
+    public void AlphabetMayContainPadCharacterWhenUnpadded()
+    {
+        var encoding = new CustomBase32Encoding("ABCDEFGHIJKLMNOPQRSTUVWXYZ23456=", null);
+        byte[] bytes = [0xff, 0xff, 0xff, 0xff, 0xff];
+        Assert.Equal("========", encoding.GetString(bytes));
+        Assert.Equal(bytes, encoding.ToBytes("========"));
+    }
+
     private static string ReplaceWithRfc4648(string russian)
     {
         var sb = new StringBuilder(russian);
