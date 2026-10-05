@@ -39,12 +39,18 @@ namespace Wiry.Base32
         /// <summary>
         /// Alphabet of a concrete Base32 encoding.
         /// </summary>
-        protected abstract string Alphabet { get; }
+        /// <remarks>
+        /// Not abstract so that classes derived under 1.1.1, which override the three-argument
+        /// methods instead, still load.
+        /// </remarks>
+        protected virtual string Alphabet => throw new NotSupportedException(
+            GetType().FullName + " does not define a Base32 alphabet.");
 
         /// <summary>
         /// Padding symbol of a concrete Base32 encoding.
         /// </summary>
-        protected abstract char? PadSymbol { get; }
+        protected virtual char? PadSymbol => throw new NotSupportedException(
+            GetType().FullName + " does not define a Base32 padding symbol.");
 
         /// <summary>
         /// Get encoded string
