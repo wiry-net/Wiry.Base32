@@ -62,13 +62,13 @@ namespace UnitTests
         [Fact]
         public void ZBase32_Test_1char()
         {
-            Base32Encoding.ZBase32.ToBytes("m");
+            Assert.Throws<FormatException>(() => Base32Encoding.ZBase32.ToBytes("m"));
         }
 
         [Fact]
         public void ZBase32_Test_9chars()
         {
-            Base32Encoding.ZBase32.ToBytes("gaaaaaaaa");
+            Assert.Throws<FormatException>(() => Base32Encoding.ZBase32.ToBytes("gaaaaaaaa"));
         }
 
         #endregion
@@ -122,10 +122,14 @@ namespace UnitTests
             int maxInputSize = 100;
             const string alphabet = "ybndrfg8ejkmcpqxot1uwisza345h769";
 
+            // Lenient, so that random last symbols reach the decoding loop instead of an exception.
+            var encoding = new CustomBase32Encoding(alphabet, null, true);
             var rnd = new Random(20170125);
             for (int i = 0; i < repeats; i++)
             {
                 int size = rnd.Next(minInputSize, maxInputSize + 1);
+                if (size % 8 == 1 || size % 8 == 3 || size % 8 == 6)
+                    size--; // rejected before any symbol is read
                 var sb = new StringBuilder(size);
                 for (int j = 0; j < size; j++)
                 {
@@ -133,7 +137,7 @@ namespace UnitTests
                 }
 
                 string zbase32 = sb.ToString();
-                Base32Encoding.ZBase32.ToBytes(zbase32); // crash or not to crash
+                encoding.ToBytes(zbase32); // crash or not to crash
             }
         }
 
@@ -161,8 +165,9 @@ namespace UnitTests
         public void ZBase32_Test_Validate3()
         {
             var test = Base32Encoding.ZBase32.CheckValidation("gr3doqbw8radnqb3goa");
-            Assert.Equal(ValidationResult.InvalidLength, test.Result); // Validate will detect an anomaly,
-            Assert.Null(test.ToBytesError); // but ToBytes will ignore extra symbols by design
+            Assert.Equal(ValidationResult.InvalidLength, test.Result);
+            Assert.IsType<FormatException>(test.ToBytesError);
+            Assert.Contains("length", test.ToBytesError.Message);
         }
 
         [Fact]

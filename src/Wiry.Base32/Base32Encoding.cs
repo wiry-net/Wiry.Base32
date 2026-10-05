@@ -16,6 +16,7 @@ namespace Wiry.Base32
         private const string ErrorMessageInvalidLength = "Invalid length";
         private const string ErrorMessageInvalidPadding = "Invalid padding";
         private const string ErrorMessageInvalidCharacter = "Invalid character";
+        private const string ErrorMessageNonZeroTrailingBits = "Non-zero trailing bits";
 
         /// <summary>
         /// Base32 alphabet length.
@@ -46,6 +47,13 @@ namespace Wiry.Base32
         /// Padding symbol of a concrete Base32 encoding.
         /// </summary>
         protected abstract char? PadSymbol { get; }
+
+        /// <summary>
+        /// Whether decoding accepts a last symbol whose unused low bits are not zero (RFC 4648, section 3.5).
+        /// Such input is not what an encoder produces and is an alias of the canonical string, so it is
+        /// rejected by default.
+        /// </summary>
+        protected virtual bool AllowNonZeroTrailingBits => false;
 
         /// <summary>
         /// Get encoded string
@@ -82,7 +90,8 @@ namespace Wiry.Base32
         /// </summary>
         public virtual byte[] ToBytes(string encoded, int index, int length)
         {
-            return ToBytes(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet));
+            return ToBytes(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet),
+                AllowNonZeroTrailingBits);
         }
 
         /// <summary>
@@ -101,7 +110,8 @@ namespace Wiry.Base32
         /// </summary>
         public virtual ValidationResult Validate(string encoded, int index, int length)
         {
-            return Validate(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet));
+            return Validate(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet),
+                AllowNonZeroTrailingBits);
         }
 
         internal LookupTable GetOrCreateLookupTable(string alphabet)
@@ -363,10 +373,22 @@ namespace Wiry.Base32
                 throw new ArgumentNullException(nameof(lookupTable));
         }
 
+        // Symbols in the last group: 8 for a full group, else 2, 4, 5 or 7. Encoders never produce 1, 3 or 6.
+        private static bool IsValidRemainder(int remainder)
+        {
+            return remainder == 8 || remainder == 2 || remainder == 4 || remainder == 5 || remainder == 7;
+        }
+
         private static int GetRemainderWithChecks(string encoded, int index, int length, char? padSymbol)
         {
             if (padSymbol == null)
-                return length % 8;
+            {
+                int tail = length % 8;
+                if (tail != 0 && !IsValidRemainder(tail))
+                    throw new FormatException(ErrorMessageInvalidLength);
+
+                return tail;
+            }
 
             if (length % 8 != 0)
                 throw new FormatException(ErrorMessageInvalidLength);
@@ -382,10 +404,22 @@ namespace Wiry.Base32
                     throw new FormatException(ErrorMessageInvalidPadding);
             }
 
+            if (!IsValidRemainder(remainder))
+                throw new FormatException(ErrorMessageInvalidPadding);
+
             return remainder;
         }
 
-        internal static byte[] ToBytes(string encoded, int index, int length, char? padSymbol, LookupTable lookupTable)
+        private static bool HasZeroTrailingBits(string encoded, int lastIndex, int remainder, LookupTable lookupTable)
+        {
+            // remainder symbols carry remainder * 5 bits; whatever is left over a whole byte is unused.
+            int unusedBits = remainder * 5 % 8;
+            int value = lookupTable.Values[encoded[lastIndex] - lookupTable.LowCode];
+            return (value & ((1 << unusedBits) - 1)) == 0;
+        }
+
+        internal static byte[] ToBytes(string encoded, int index, int length, char? padSymbol, LookupTable lookupTable,
+            bool allowNonZeroTrailingBits)
         {
             CheckToBytesArguments(encoded, index, length, lookupTable);
 
@@ -416,11 +450,17 @@ namespace Wiry.Base32
                 ToBytesUnsafe(encoded, index, bytes, 0, groupsCount, remainder, lookupTable);
             }
 
+            if (!allowNonZeroTrailingBits &&
+                !HasZeroTrailingBits(encoded, index + groupsCount * 8 + remainder - 1, remainder, lookupTable))
+            {
+                throw new FormatException(ErrorMessageNonZeroTrailingBits);
+            }
+
             return bytes;
         }
 
         internal static ValidationResult Validate(string encoded, int index, int length, char? padSymbol,
-            LookupTable lookupTable)
+            LookupTable lookupTable, bool allowNonZeroTrailingBits)
         {
             try
             {
@@ -458,6 +498,12 @@ namespace Wiry.Base32
 
                 if (!CheckAlphabet(encoded, index, length, lookupTable))
                     return ValidationResult.InvalidCharacter;
+
+                if (!allowNonZeroTrailingBits && length > 0 &&
+                    !HasZeroTrailingBits(encoded, index + length - 1, length % 8 == 0 ? 8 : length % 8, lookupTable))
+                {
+                    return ValidationResult.InvalidCharacter;
+                }
 
                 return ValidationResult.Ok;
             }

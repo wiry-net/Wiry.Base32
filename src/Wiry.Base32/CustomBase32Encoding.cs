@@ -22,9 +22,23 @@ namespace Wiry.Base32
         protected override char? PadSymbol { get; }
 
         /// <summary>
+        /// Whether decoding accepts a last symbol whose unused low bits are not zero.
+        /// </summary>
+        protected override bool AllowNonZeroTrailingBits { get; }
+
+        /// <summary>
         /// Initializes a new instance of the CustomBase32Encoding class with specified alphabet and padding symbol.
         /// </summary>
         public CustomBase32Encoding(string alphabet, char? padSymbol)
+            : this(alphabet, padSymbol, false)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the CustomBase32Encoding class with specified alphabet and padding symbol,
+        /// optionally accepting a last symbol with non-zero unused bits, as decoders compatible with 1.x did.
+        /// </summary>
+        public CustomBase32Encoding(string alphabet, char? padSymbol, bool allowNonZeroTrailingBits)
         {
             if (alphabet == null)
                 throw new ArgumentNullException(nameof(alphabet));
@@ -41,6 +55,7 @@ namespace Wiry.Base32
 
             Alphabet = alphabet;
             PadSymbol = padSymbol;
+            AllowNonZeroTrailingBits = allowNonZeroTrailingBits;
         }
     }
 }
