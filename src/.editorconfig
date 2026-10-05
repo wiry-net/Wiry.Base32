@@ -1,0 +1,6 @@
+# ToBytes returns a fresh empty array on every call, as every release so far has done:
+# Array.Empty would hand out one shared instance, and net45 has none to hand out. Lowered
+# rather than silenced, so the analyze step still sees it and blocks it unless the line
+# says why it stays.
+[*.cs]
+dotnet_diagnostic.CA1825.severity = suggestion

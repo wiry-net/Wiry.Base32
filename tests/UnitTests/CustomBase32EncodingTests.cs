@@ -45,7 +45,7 @@ namespace UnitTests
             return sb.ToString();
         }
 
-        private class RussianBase32Encoding : CustomBase32Encoding
+        private sealed class RussianBase32Encoding : CustomBase32Encoding
         {
             public RussianBase32Encoding() : base(RussianAlphabet, '=')
             {

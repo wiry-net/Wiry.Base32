@@ -1,0 +1,4 @@
+# Test method names use the Microsoft-recommended Method_Scenario_Expected form (with underscores).
+# CA1707 targets public-API identifiers, not test methods; MS docs endorse suppressing it for test code.
+[*.cs]
+dotnet_diagnostic.CA1707.severity = none

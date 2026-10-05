@@ -40,7 +40,7 @@ namespace UnitTests
         [Fact]
         public void ZBase32_Test3()
         {
-            Assert.Equal(string.Empty, Base32Encoding.ZBase32.GetString(new byte[0]));
+            Assert.Equal(string.Empty, Base32Encoding.ZBase32.GetString([]));
         }
 
         [Fact]
