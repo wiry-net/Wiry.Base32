@@ -123,8 +123,9 @@ namespace Wiry.Base32
 
         internal static bool IsEncodedLength(int length)
         {
-            int bytesCount = GetBytesCount(length);
-            int symbolsCount = GetSymbolsCount(bytesCount);
+            // GetBytesCount/GetSymbolsCount in long: length * 5 overflows an int from 429496730.
+            long bytesCount = (long)length * 5 / 8;
+            long symbolsCount = (bytesCount * 8 + 4) / 5;
             return symbolsCount == length;
         }
 
