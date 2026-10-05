@@ -50,14 +50,62 @@ jobs:
   package:
     needs: check
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      # Pack also validates the package against the released 1.1.1.
+      - run: dotnet pack src/Wiry.Base32/Wiry.Base32.csproj -c Release -o artifacts/package
+      - name: Package holds exactly the three assemblies, their docs and the readme
+        run: |
+          unzip -Z1 artifacts/package/*.nupkg | sort
+          actual=$(unzip -Z1 artifacts/package/*.nupkg | grep -E '^(lib/|README.md$)' | LC_ALL=C sort | tr '\n' ' ')
+          expected="README.md lib/net45/Wiry.Base32.dll lib/net45/Wiry.Base32.xml lib/netstandard1.1/Wiry.Base32.dll lib/netstandard1.1/Wiry.Base32.xml lib/netstandard2.0/Wiry.Base32.dll lib/netstandard2.0/Wiry.Base32.xml "
+          test "$actual" = "$expected"
+      - name: Parity with 1.1.1 on every assembly in the package
+        run: tools/parity/run.sh artifacts/package/*.nupkg 20
+        timeout-minutes: 15
+      - name: An app compiled against 1.1.1 runs on the package
+        run: tools/compat-guard/run.sh artifacts/package/*.nupkg net10.0
+        timeout-minutes: 5
+      # The same commit packed from another directory must give the same assemblies.
+      - uses: actions/checkout@v7
+        with:
+          path: second
+      - run: dotnet pack second/src/Wiry.Base32/Wiry.Base32.csproj -c Release -o artifacts/second
+      - name: Assemblies are reproducible
+        run: |
+          for side in package second; do
+            mkdir -p "artifacts/$side-lib"
+            unzip -q artifacts/$side/*.nupkg 'lib/*' -d "artifacts/$side-lib"
+            (cd "artifacts/$side-lib" && sha256sum lib/*/*.dll) > "artifacts/$side.sha256"
+          done
+          cat artifacts/package.sha256
+          diff artifacts/package.sha256 artifacts/second.sha256
+      - uses: actions/upload-artifact@v7
+        with:
+          name: package
+          path: |
+            artifacts/package/*.nupkg
+            artifacts/package/*.snupkg
+
+  framework:
+    # The net45 assembly from the package under the real .NET Framework, loaded by an app
+    # compiled against 1.1.1.
+    needs: package
+    runs-on: windows-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
-      - run: dotnet pack src/Wiry.Base32/Wiry.Base32.csproj -c Release -o artifacts/package
-      - uses: actions/upload-artifact@v7
+      - uses: actions/download-artifact@v7
         with:
           name: package
-          path: artifacts/package/*.nupkg
+          path: artifacts/package
+      - run: tools/compat-guard/run.sh artifacts/package/*.nupkg net472
+        shell: bash
+        timeout-minutes: 5
