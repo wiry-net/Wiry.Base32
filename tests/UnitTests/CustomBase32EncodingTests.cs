@@ -6,50 +6,44 @@ using System.Text;
 using Wiry.Base32;
 using Xunit;
 
-namespace UnitTests
+namespace UnitTests;
+
+public class CustomBase32EncodingTests
 {
-    public class CustomBase32EncodingTests
+    private const string Rfc4648Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+    // U+0410..U+042F, the Cyrillic capitals from A to YA.
+    private const string RussianAlphabet =
+        "\u0410\u0411\u0412\u0413\u0414\u0415\u0416\u0417\u0418\u0419\u041a\u041b\u041c\u041d\u041e\u041f\u0420\u0421\u0422\u0423\u0424\u0425\u0426\u0427\u0428\u0429\u042a\u042b\u042c\u042d\u042e\u042f";
+
+    [Fact]
+    public void CustomEncodingTest()
     {
-        private const string Rfc4648Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-        // U+0410..U+042F, the Cyrillic capitals from A to YA.
-        private const string RussianAlphabet =
-            "\u0410\u0411\u0412\u0413\u0414\u0415\u0416\u0417\u0418\u0419\u041a\u041b\u041c\u041d\u041e\u041f\u0420\u0421\u0422\u0423\u0424\u0425\u0426\u0427\u0428\u0429\u042a\u042b\u042c\u042d\u042e\u042f";
+        const string text = "The Base 32 encoding is designed to represent arbitrary " +
+                            "sequences of octets in a form that needs to be case insensitive " +
+                            "but that need not be human readable.";
 
-        [Fact]
-        public void CustomEncodingTest()
-        {
-            const string text = "The Base 32 encoding is designed to represent arbitrary " +
-                                "sequences of octets in a form that needs to be case insensitive " +
-                                "but that need not be human readable.";
+        var bytes = Encoding.ASCII.GetBytes(text);
 
-            var bytes = Encoding.ASCII.GetBytes(text);
+        var standardEncoded = Base32Encoding.Standard.GetString(bytes);
 
-            var standardEncoded = Base32Encoding.Standard.GetString(bytes);
+        var russianBase32Encoding = new RussianBase32Encoding();
+        var russianEncoded = russianBase32Encoding.GetString(bytes);
+        Assert.Equal(standardEncoded, ReplaceWithRfc4648(russianEncoded));
 
-            var russianBase32Encoding = new RussianBase32Encoding();
-            var russianEncoded = russianBase32Encoding.GetString(bytes);
-            Assert.Equal(standardEncoded, ReplaceWithRfc4648(russianEncoded));
-
-            var roundTripText = Encoding.ASCII.GetString(russianBase32Encoding.ToBytes(russianEncoded));
-            Assert.Equal(text, roundTripText);
-        }
-
-        private static string ReplaceWithRfc4648(string russian)
-        {
-            var sb = new StringBuilder(russian);
-            for (var i = 0; i < 32; i++)
-            {
-                sb.Replace(RussianAlphabet[i], Rfc4648Alphabet[i]);
-            }
-
-            return sb.ToString();
-        }
-
-        private sealed class RussianBase32Encoding : CustomBase32Encoding
-        {
-            public RussianBase32Encoding() : base(RussianAlphabet, '=')
-            {
-            }
-        }
+        var roundTripText = Encoding.ASCII.GetString(russianBase32Encoding.ToBytes(russianEncoded));
+        Assert.Equal(text, roundTripText);
     }
+
+    private static string ReplaceWithRfc4648(string russian)
+    {
+        var sb = new StringBuilder(russian);
+        for (var i = 0; i < 32; i++)
+        {
+            sb.Replace(RussianAlphabet[i], Rfc4648Alphabet[i]);
+        }
+
+        return sb.ToString();
+    }
+
+    private sealed class RussianBase32Encoding() : CustomBase32Encoding(RussianAlphabet, '=');
 }

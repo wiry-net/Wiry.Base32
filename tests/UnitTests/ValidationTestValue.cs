@@ -2,20 +2,12 @@
 // Licensed under the MIT License.
 // See LICENSE in the project root for license information.
 
-using System;
 using Wiry.Base32;
 
-namespace UnitTests
-{
-    public class ValidationTestValue
-    {
-        public ValidationResult Result { get; }
-        public Exception ToBytesError { get; }
+namespace UnitTests;
 
-        public ValidationTestValue(ValidationResult result, Exception toBytesError)
-        {
-            Result = result;
-            ToBytesError = toBytesError;
-        }
-    }
+public class ValidationTestValue(ValidationResult result, Exception toBytesError)
+{
+    public ValidationResult Result { get; } = result;
+    public Exception ToBytesError { get; } = toBytesError;
 }

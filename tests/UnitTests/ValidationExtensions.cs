@@ -2,33 +2,31 @@
 // Licensed under the MIT License.
 // See LICENSE in the project root for license information.
 
-using System;
 using Wiry.Base32;
 using Xunit;
 
-namespace UnitTests
+namespace UnitTests;
+
+public static class ValidationExtensions
 {
-    public static class ValidationExtensions
+    public static ValidationTestValue CheckValidation(this Base32Encoding encoder, string encoded)
     {
-        public static ValidationTestValue CheckValidation(this Base32Encoding encoder, string encoded)
+        Exception toBytesError = null;
+        try
         {
-            Exception toBytesError = null;
-            try
-            {
-                encoder.ToBytes(encoded);
-            }
-            catch (Exception ex)
-            {
-                toBytesError = ex;
-            }
-
-            var validationResult = encoder.Validate(encoded);
-            var vr2 = encoder.Validate(encoded, 0, encoded?.Length ?? 0);
-            var vr3 = encoder.Validate(encoded != null ? "test" + encoded : null, 4, encoded?.Length ?? 0);
-            Assert.Equal(validationResult, vr2);
-            Assert.Equal(validationResult, vr3);
-
-            return new ValidationTestValue(validationResult, toBytesError);
+            encoder.ToBytes(encoded);
         }
+        catch (Exception ex)
+        {
+            toBytesError = ex;
+        }
+
+        var validationResult = encoder.Validate(encoded);
+        var vr2 = encoder.Validate(encoded, 0, encoded?.Length ?? 0);
+        var vr3 = encoder.Validate(encoded != null ? "test" + encoded : null, 4, encoded?.Length ?? 0);
+        Assert.Equal(validationResult, vr2);
+        Assert.Equal(validationResult, vr3);
+
+        return new ValidationTestValue(validationResult, toBytesError);
     }
 }
