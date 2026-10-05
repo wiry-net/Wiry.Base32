@@ -4,10 +4,6 @@
 
 **Base32 and ZBase32 encoding and decoding library.**
 
-AppVeyor (Windows): [![AppVeyor](https://ci.appveyor.com/api/projects/status/o4vfx9fx35vfmh37?svg=true)](https://ci.appveyor.com/project/dmitry-ra/base32)
-
-Travis CI (Linux & macOS): [![Travis CI](https://travis-ci.org/wiry-net/Wiry.Base32.svg?branch=master)](https://travis-ci.org/wiry-net/Wiry.Base32)
-
 ### .NET compatibility:
 - .NET Framework (4.5+)
 - .NET Core (netstandard 1.1+)

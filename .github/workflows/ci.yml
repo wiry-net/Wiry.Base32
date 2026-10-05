@@ -1,0 +1,63 @@
+name: ci
+
+on:
+  push:
+    branches: [master, 'tmp/**']
+  pull_request:
+
+# A push replaces the run before it rather than racing it.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Every job and every step that waits on code under test carries a ceiling: without one a hung
+# test runs until GitHub's own six-hour limit.
+jobs:
+  check:
+    # No macOS: the library is managed code with no platform-specific path, so a third system
+    # would prove nothing these two do not, and its minutes bill at ten times the rate. Windows
+    # is here for net472, which runs the net45 build on the real .NET Framework.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          # The SDK comes from global.json; the net8.0 tests need the 8.0 runtime beside it.
+          dotnet-version: 8.0.x
+          global-json-file: global.json
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: dotnet tool restore
+      - run: python scripts/charset.py
+      - run: python scripts/format.py
+      - run: python scripts/build.py
+      - run: python scripts/test.py
+        timeout-minutes: 5
+      - run: python scripts/analyze.py
+        timeout-minutes: 8
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: inspect-sarif-${{ matrix.os }}
+          path: artifacts/inspect.sarif
+
+  package:
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - run: dotnet pack src/Wiry.Base32/Wiry.Base32.csproj -c Release -o artifacts/package
+      - uses: actions/upload-artifact@v7
+        with:
+          name: package
+          path: artifacts/package/*.nupkg
