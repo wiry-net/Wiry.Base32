@@ -105,6 +105,46 @@ Z2) Ok
 Z3) InvalidLength
 Z4) InvalidCharacter
 ```
+### Span example
+
+On .NET Core 3.0+ and .NET 5+ (the `netstandard2.1` build) the encodings also work on spans, without
+intermediate arrays. A blittable struct is encoded and decoded in place through `MemoryMarshal.AsBytes`:
+```csharp
+using System;
+using System.Runtime.InteropServices;
+using Wiry.Base32;
+
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+struct Header
+{
+    public int Id;
+    public long Stamp;
+}
+
+static class Program
+{
+    static void Main()
+    {
+        var encoding = Base32Encoding.Standard;
+        var header = new Header { Id = 42, Stamp = 1700000000 };
+
+        ReadOnlySpan<byte> raw = MemoryMarshal.AsBytes(MemoryMarshal.CreateReadOnlySpan(ref header, 1));
+        Span<char> chars = stackalloc char[encoding.GetEncodedLength(raw.Length)];
+        encoding.TryGetChars(raw, chars, out int charsWritten);
+        Console.WriteLine(chars.Slice(0, charsWritten).ToString());
+
+        var decoded = default(Header);
+        Span<byte> target = MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref decoded, 1));
+        if (encoding.TryGetBytes(chars.Slice(0, charsWritten), target, out int bytesWritten))
+            Console.WriteLine($"{decoded.Id} {decoded.Stamp} ({bytesWritten} bytes)");
+    }
+}
+```
+`TryGetChars` and `TryGetBytes` return false when the destination is too short; invalid input still throws
+`FormatException`, as `ToBytes` does. `GetMaxDecodedLength` gives a destination length that is always enough.
+`GetString(ReadOnlySpan<byte>)`, `ToBytes(ReadOnlySpan<char>)` and `Validate(ReadOnlySpan<char>)` mirror the
+array overloads.
+
 ### Benchmarks
 
 [Benchmark repository](https://github.com/dmitry-ra/benchmarks/tree/master/comparative/Base32Encoding)
