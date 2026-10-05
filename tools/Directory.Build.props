@@ -1,0 +1,4 @@
+<Project>
+  <!-- The tools stand outside the library's analyzer gate: the guard must compile the way a
+       1.1.1-era consumer does, and the probe is test equipment rather than shipped code. -->
+</Project>
