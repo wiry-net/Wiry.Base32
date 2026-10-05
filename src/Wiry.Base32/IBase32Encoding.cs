@@ -22,5 +22,5 @@ public interface IBase32Encoding
     /// <summary>
     /// Validate input data.
     /// </summary>
-    ValidationResult Validate(string encoded, int index, int length);
+    ValidationResult Validate(string? encoded, int index, int length);
 }

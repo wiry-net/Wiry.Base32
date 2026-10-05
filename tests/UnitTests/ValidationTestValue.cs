@@ -6,8 +6,8 @@ using Wiry.Base32;
 
 namespace UnitTests;
 
-public class ValidationTestValue(ValidationResult result, Exception toBytesError)
+public class ValidationTestValue(ValidationResult result, Exception? toBytesError)
 {
     public ValidationResult Result { get; } = result;
-    public Exception ToBytesError { get; } = toBytesError;
+    public Exception? ToBytesError { get; } = toBytesError;
 }

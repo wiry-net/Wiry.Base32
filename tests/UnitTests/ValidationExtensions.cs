@@ -9,12 +9,13 @@ namespace UnitTests;
 
 public static class ValidationExtensions
 {
-    public static ValidationTestValue CheckValidation(this Base32Encoding encoder, string encoded)
+    public static ValidationTestValue CheckValidation(this Base32Encoding encoder, string? encoded)
     {
-        Exception toBytesError = null;
+        Exception? toBytesError = null;
         try
         {
-            encoder.ToBytes(encoded);
+            // Null goes through on purpose: the exception it raises is what gets recorded.
+            encoder.ToBytes(encoded!);
         }
         catch (Exception ex)
         {

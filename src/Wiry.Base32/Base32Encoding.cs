@@ -20,8 +20,8 @@ public abstract class Base32Encoding : IBase32Encoding
     /// </summary>
     protected const int AlphabetLength = 32;
 
-    private static volatile Base32Encoding _standard;
-    private static volatile Base32Encoding _zBase32;
+    private static volatile Base32Encoding? _standard;
+    private static volatile Base32Encoding? _zBase32;
 
     /// <summary>
     /// Represent standard encoding defined in RFC 4648
@@ -33,7 +33,7 @@ public abstract class Base32Encoding : IBase32Encoding
     /// </summary>
     public static Base32Encoding ZBase32 => _zBase32 ??= new ZBase32Encoding();
 
-    private volatile LookupTable _lookupTable;
+    private volatile LookupTable? _lookupTable;
 
     /// <summary>
     /// Alphabet of a concrete Base32 encoding.
@@ -86,7 +86,7 @@ public abstract class Base32Encoding : IBase32Encoding
     /// <summary>
     /// Validate input data.
     /// </summary>
-    public virtual ValidationResult Validate(string encoded)
+    public virtual ValidationResult Validate(string? encoded)
     {
         if (encoded == null)
             return ValidationResult.InvalidArguments;
@@ -97,7 +97,7 @@ public abstract class Base32Encoding : IBase32Encoding
     /// <summary>
     /// Validate input data
     /// </summary>
-    public virtual ValidationResult Validate(string encoded, int index, int length)
+    public virtual ValidationResult Validate(string? encoded, int index, int length)
     {
         return Validate(encoded, index, length, PadSymbol, GetOrCreateLookupTable(Alphabet));
     }
@@ -417,11 +417,14 @@ public abstract class Base32Encoding : IBase32Encoding
         return bytes;
     }
 
-    internal static ValidationResult Validate(string encoded, int index, int length, char? padSymbol,
+    internal static ValidationResult Validate(string? encoded, int index, int length, char? padSymbol,
         LookupTable lookupTable)
     {
         try
         {
+            if (encoded == null)
+                return ValidationResult.InvalidArguments;
+
             CheckToBytesArguments(encoded, index, length, lookupTable);
 
             var bytesCount = GetBytesCount(length);
