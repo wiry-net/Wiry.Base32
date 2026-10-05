@@ -14,6 +14,8 @@
     <PackageTags>base32;rfc4648;zbase32;z-base-32;coreclr;core clr;netcore;netstandard;cross-platform</PackageTags>
     <AssemblyVersion>1.1.1.0</AssemblyVersion>
     <FileVersion>1.1.1.0</FileVersion>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>1.1.1</PackageValidationBaselineVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
