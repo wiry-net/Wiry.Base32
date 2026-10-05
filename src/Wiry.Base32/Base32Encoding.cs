@@ -3,7 +3,6 @@
 // See LICENSE in the project root for license information.
 
 using System;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Wiry.Base32
@@ -125,17 +124,28 @@ namespace Wiry.Base32
 
         private static LookupTable BuildLookupTable(string alphabet)
         {
-            int[] codes = alphabet.Select(ch => (int)ch).ToArray();
-            int min = codes.Min();
-            int max = codes.Max();
-            int size = max - min + 1;
-            var table = new int[size];
+            int min = alphabet[0];
+            int max = alphabet[0];
+            for (int i = 1; i < alphabet.Length; i++)
+            {
+                if (alphabet[i] < min)
+                    min = alphabet[i];
+
+                if (alphabet[i] > max)
+                    max = alphabet[i];
+            }
+
+            var table = new int[max - min + 1];
 
             for (int i = 0; i < table.Length; i++)
                 table[i] = LookupTableNullItem;
 
-            foreach (int code in codes)
-                table[code - min] = alphabet.IndexOf((char)code);
+            // First occurrence wins, as IndexOf did.
+            for (int i = 0; i < alphabet.Length; i++)
+            {
+                if (table[alphabet[i] - min] == LookupTableNullItem)
+                    table[alphabet[i] - min] = i;
+            }
 
             return new LookupTable(min, table);
         }
