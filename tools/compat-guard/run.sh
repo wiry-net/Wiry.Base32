@@ -25,7 +25,7 @@ cp "$work/app/Wiry.Base32.dll" "$work/baseline.dll"
 "${run[@]}"
 
 rm -rf "$work/candidate"
-unzip -q "$candidate" 'lib/*' -d "$work/candidate"
+unzip -q "$candidate" -d "$work/candidate"
 for lib in "${libs[@]}"; do
     echo "candidate lib/$lib:"
     cp "$work/candidate/lib/$lib/Wiry.Base32.dll" "$work/app/Wiry.Base32.dll"
