@@ -121,6 +121,13 @@ namespace Wiry.Base32
             return symbolsCount * 5 / 8;
         }
 
+        internal static bool IsEncodedLength(int length)
+        {
+            int bytesCount = GetBytesCount(length);
+            int symbolsCount = GetSymbolsCount(bytesCount);
+            return symbolsCount == length;
+        }
+
         private const int LookupTableNullItem = -1;
 
         private static LookupTable BuildLookupTable(string alphabet)
@@ -426,9 +433,7 @@ namespace Wiry.Base32
             {
                 CheckToBytesArguments(encoded, index, length, lookupTable);
 
-                int bytesCount = GetBytesCount(length);
-                int symbolsCount = GetSymbolsCount(bytesCount);
-                if (symbolsCount != length)
+                if (!IsEncodedLength(length))
                     return ValidationResult.InvalidLength;
 
                 int remainder;
