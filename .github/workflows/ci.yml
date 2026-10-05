@@ -56,7 +56,9 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           global-json-file: global.json
-      - run: dotnet pack src/Wiry.Base32/Wiry.Base32.csproj -c Release -o artifacts/package
+      # The project packs on every build; left on, that inner pack runs before the net45 build
+      # exists on a clean checkout and fails with NU5026.
+      - run: dotnet pack src/Wiry.Base32/Wiry.Base32.csproj -c Release -o artifacts/package -p:GeneratePackageOnBuild=false
       - uses: actions/upload-artifact@v7
         with:
           name: package
