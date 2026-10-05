@@ -86,13 +86,9 @@ public class CompatibilityTests
     }
 
     // Written the way 1.1.1 has subclasses written: it supplies the six public members and
-    // nothing else. Alphabet and PadSymbol are here only because this source declares them
-    // abstract, which a subclass compiled against 1.1.1 cannot satisfy.
+    // nothing else. Any 1.x release must compile and load it unchanged.
     private sealed class CaseInsensitiveEncoding : Base32Encoding
     {
-        protected override string Alphabet => throw new NotSupportedException();
-        protected override char? PadSymbol => throw new NotSupportedException();
-
         public override string GetString(byte[] bytes) => Standard.GetString(bytes);
 
         public override string GetString(byte[] bytes, int index, int count) =>
