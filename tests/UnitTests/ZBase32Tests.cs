@@ -98,7 +98,7 @@ public class ZBase32Tests
     [Fact]
     public void ZBase32_Test_Complex2_Encode()
     {
-        var zb = Base32Encoding.ZBase32.GetString("xyHelloz"u8.ToArray(), 2, 5);
+        var zb = Base32Encoding.ZBase32.GetString([.. "xyHelloz"u8], 2, 5);
         Assert.Equal("jb1sa5dx", zb);
     }
 

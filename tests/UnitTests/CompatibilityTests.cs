@@ -13,7 +13,7 @@ public class CompatibilityTests
 {
     private const string Encoded = "MZXW6YTBOI======";
     private const string Lower = "mzxw6ytboi======";
-    private static readonly byte[] Foobar = "foobar"u8.ToArray();
+    private static readonly byte[] Foobar = [.. "foobar"u8];
 
     [Fact]
     public void Subclass_GetString_OverridesBothForms()
@@ -43,31 +43,44 @@ public class CompatibilityTests
         Assert.Equal(ValidationResult.InvalidArguments, encoding.Validate(null));
     }
 
-    public static TheoryData<IBase32Encoding, string> Encodings => new()
+    public static TheoryData<string, string> Encodings => new()
     {
-        { Base32Encoding.Standard, Encoded },
-        { Base32Encoding.ZBase32, "c3zs6aubqe" },
-        { new CustomBase32Encoding("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567", null), "MZXW6YTBOI" },
+        { "standard", Encoded },
+        { "z-base-32", "c3zs6aubqe" },
+        { "custom", "MZXW6YTBOI" }
+    };
+
+    private static readonly Dictionary<string, IBase32Encoding> Named = new()
+    {
+        ["standard"] = Base32Encoding.Standard,
+        ["z-base-32"] = Base32Encoding.ZBase32,
+        ["custom"] = new CustomBase32Encoding("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567", null)
     };
 
     [Theory]
     [MemberData(nameof(Encodings))]
-    public void Interface_GetString_DispatchesToEncoding(IBase32Encoding encoding, string encoded)
+    public void Interface_GetString_DispatchesToEncoding(string name, string encoded)
     {
+        var encoding = Named[name];
+
         Assert.Equal(encoded, encoding.GetString(Foobar, 0, Foobar.Length));
     }
 
     [Theory]
     [MemberData(nameof(Encodings))]
-    public void Interface_ToBytes_DispatchesToEncoding(IBase32Encoding encoding, string encoded)
+    public void Interface_ToBytes_DispatchesToEncoding(string name, string encoded)
     {
+        var encoding = Named[name];
+
         Assert.Equal(Foobar, encoding.ToBytes(encoded, 0, encoded.Length));
     }
 
     [Theory]
     [MemberData(nameof(Encodings))]
-    public void Interface_Validate_AcceptsNull(IBase32Encoding encoding, string encoded)
+    public void Interface_Validate_AcceptsNull(string name, string encoded)
     {
+        var encoding = Named[name];
+
         Assert.Equal(ValidationResult.Ok, encoding.Validate(encoded, 0, encoded.Length));
         Assert.Equal(ValidationResult.InvalidArguments, encoding.Validate(null, 0, 0));
     }
