@@ -7,40 +7,17 @@ using System;
 namespace Wiry.Base32
 {
     /// <summary>
-    /// Base32 implementation based on specified <see cref="Alphabet"/> and <see cref="PadSymbol"/>.
+    /// Base32 implementation based on a specified alphabet and padding symbol.
     /// </summary>
     public class CustomBase32Encoding : Base32Encoding
     {
         /// <summary>
-        /// Alphabet of a concrete Base32 encoding.
-        /// </summary>
-        protected override string Alphabet { get; }
-
-        /// <summary>
-        /// Padding symbol of a concrete Base32 encoding.
-        /// </summary>
-        protected override char? PadSymbol { get; }
-
-        /// <summary>
         /// Initializes a new instance of the CustomBase32Encoding class with specified alphabet and padding symbol.
         /// </summary>
+        /// <exception cref="ArgumentException">The alphabet is not 32 distinct symbols, or contains the padding symbol.</exception>
         public CustomBase32Encoding(string alphabet, char? padSymbol)
+            : base(alphabet, padSymbol)
         {
-            if (alphabet == null)
-                throw new ArgumentNullException(nameof(alphabet));
-
-            if (alphabet.Length != AlphabetLength)
-            {
-                throw new ArgumentOutOfRangeException
-                (
-                    nameof(alphabet),
-                    alphabet.Length,
-                    $"The length of the alphabet must be {AlphabetLength}, but {alphabet.Length} is specified."
-                );
-            }
-
-            Alphabet = alphabet;
-            PadSymbol = padSymbol;
         }
     }
 }

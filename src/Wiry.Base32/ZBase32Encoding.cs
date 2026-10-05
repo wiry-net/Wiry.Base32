@@ -6,7 +6,9 @@ namespace Wiry.Base32
 {
     internal sealed class ZBase32Encoding : Base32Encoding
     {
-        protected override string Alphabet => "ybndrfg8ejkmcpqxot1uwisza345h769";
-        protected override char? PadSymbol => null;
+        public ZBase32Encoding()
+            : base("ybndrfg8ejkmcpqxot1uwisza345h769", null)
+        {
+        }
     }
 }

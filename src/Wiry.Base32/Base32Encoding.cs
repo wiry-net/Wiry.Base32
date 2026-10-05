@@ -36,15 +36,69 @@ namespace Wiry.Base32
 
         private volatile LookupTable _lookupTable;
 
+        private readonly string _alphabet;
+        private readonly char? _padSymbol;
+
+        /// <summary>
+        /// Initializes an encoding whose derived class overrides the encoding and decoding methods
+        /// or the <see cref="Alphabet"/> property.
+        /// </summary>
+        protected Base32Encoding()
+        {
+        }
+
+        /// <summary>
+        /// Initializes an encoding with the specified alphabet and padding symbol.
+        /// </summary>
+        /// <param name="alphabet">32 distinct symbols.</param>
+        /// <param name="padSymbol">Padding symbol not present in the alphabet, or null for no padding.</param>
+        protected Base32Encoding(string alphabet, char? padSymbol)
+        {
+            if (alphabet == null)
+                throw new ArgumentNullException(nameof(alphabet));
+
+            if (alphabet.Length != AlphabetLength)
+            {
+                throw new ArgumentOutOfRangeException
+                (
+                    nameof(alphabet),
+                    alphabet.Length,
+                    $"The length of the alphabet must be {AlphabetLength}, but {alphabet.Length} is specified."
+                );
+            }
+
+            for (int i = 0; i < alphabet.Length; i++)
+            {
+                if (alphabet[i] == padSymbol)
+                {
+                    throw new ArgumentException(
+                        $"The padding symbol must not be in the alphabet, but it is at index {i}.",
+                        nameof(padSymbol));
+                }
+
+                int repeat = alphabet.IndexOf(alphabet[i], i + 1);
+                if (repeat >= 0)
+                {
+                    throw new ArgumentException(
+                        $"Alphabet symbols must be unique, but index {i} is repeated at index {repeat}.",
+                        nameof(alphabet));
+                }
+            }
+
+            _alphabet = alphabet;
+            _padSymbol = padSymbol;
+        }
+
         /// <summary>
         /// Alphabet of a concrete Base32 encoding.
         /// </summary>
-        protected abstract string Alphabet { get; }
+        protected virtual string Alphabet => _alphabet ?? throw new NotSupportedException(
+            GetType().FullName + " does not define a Base32 alphabet.");
 
         /// <summary>
         /// Padding symbol of a concrete Base32 encoding.
         /// </summary>
-        protected abstract char? PadSymbol { get; }
+        protected virtual char? PadSymbol => _padSymbol;
 
         /// <summary>
         /// Get encoded string
