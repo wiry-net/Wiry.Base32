@@ -11,6 +11,7 @@ Not named inspect.py: this directory is sys.path[0], and the name would shadow
 the stdlib `inspect` that dataclasses imports.
 """
 
+import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -56,7 +57,7 @@ def main() -> int:
 
 def _kept(finding: Finding) -> bool:
     try:
-        lines = Path(finding.path).read_text(encoding="utf-8").splitlines()
+        lines = _local(finding.path).read_text(encoding="utf-8").splitlines()
     except (OSError, UnicodeDecodeError):
         return False
     if not 0 < finding.line <= len(lines):
@@ -89,9 +90,14 @@ def _report(findings: list[Finding], kept: set[Finding]) -> None:
           f"{', '.join(f'{level} {count}' for level, count in sorted(counts.items())) or 'none'}")
 
 
+def _local(path: str) -> Path:
+    # Report paths come from file URIs, which put a slash before a Windows drive letter.
+    return Path(path[1:] if re.match(r"/[A-Za-z]:/", path) else path)
+
+
 def _relative(path: str) -> str:
     try:
-        return str(Path(path).relative_to(ROOT))
+        return _local(path).relative_to(ROOT).as_posix()
     except ValueError:
         return path
 
